@@ -236,3 +236,50 @@ class F1Service:
 
         set_cached(cache_key, telemetry_points)
         return telemetry_points
+
+    @staticmethod
+    async def get_champions() -> List[Dict[str, Any]]:
+        cache_key = "champions_history"
+        cached = get_cached(cache_key)
+        if cached:
+            return cached
+
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                resp = await client.get(f"{settings.ERGAST_BASE_URL}/driverStandings/1.json?limit=1000")
+                if resp.status_code == 200:
+                    data = resp.json()
+                    standings_lists = data['MRData']['StandingsTable']['StandingsLists']
+                    champions = []
+                    for item in standings_lists:
+                        season = item['season']
+                        standing = item['DriverStandings'][0]
+                        driver = standing['Driver']
+                        constructor = standing['Constructors'][0]
+                        
+                        champions.append({
+                            "season": int(season),
+                            "driver_name": f"{driver['givenName']} {driver['familyName']}",
+                            "nationality": driver['nationality'],
+                            "constructor_name": constructor['name'],
+                            "points": float(standing['points']),
+                            "wins": int(standing['wins'])
+                        })
+                    champions.sort(key=lambda x: x['season'], reverse=True)
+                    set_cached(cache_key, champions)
+                    return champions
+            except Exception as e:
+                print(f"Champions fetch failed: {e}")
+
+        # Static fallback champions list if remote Ergast API is unreachable
+        fallback = [
+            {"season": 2025, "driver_name": "Max Verstappen", "nationality": "Dutch", "constructor_name": "Red Bull Racing", "points": 437.0, "wins": 9},
+            {"season": 2024, "driver_name": "Max Verstappen", "nationality": "Dutch", "constructor_name": "Red Bull Racing", "points": 575.0, "wins": 15},
+            {"season": 2023, "driver_name": "Max Verstappen", "nationality": "Dutch", "constructor_name": "Red Bull Racing", "points": 575.0, "wins": 19},
+            {"season": 2022, "driver_name": "Max Verstappen", "nationality": "Dutch", "constructor_name": "Red Bull Racing", "points": 454.0, "wins": 15},
+            {"season": 2021, "driver_name": "Max Verstappen", "nationality": "Dutch", "constructor_name": "Red Bull Racing", "points": 395.5, "wins": 10},
+            {"season": 2020, "driver_name": "Lewis Hamilton", "nationality": "British", "constructor_name": "Mercedes", "points": 347.0, "wins": 11},
+            {"season": 2019, "driver_name": "Lewis Hamilton", "nationality": "British", "constructor_name": "Mercedes", "points": 413.0, "wins": 11}
+        ]
+        return fallback
+

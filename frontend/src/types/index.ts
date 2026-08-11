@@ -59,3 +59,12 @@ export interface TelemetryPoint {
   x: number;
   y: number;
 }
+
+export interface Champion {
+  season: number;
+  driver_name: string;
+  nationality: string;
+  constructor_name: string;
+  points: number;
+  wins: number;
+}

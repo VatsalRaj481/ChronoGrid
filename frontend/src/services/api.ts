@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Driver, Constructor, Race, TelemetryPoint } from '../types';
+import { Driver, Constructor, Race, TelemetryPoint, Champion } from '../types';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
 const apiClient = axios.create({
@@ -86,6 +86,24 @@ export const F1API = {
         });
       }
       return points;
+    }
+  },
+
+  getChampions: async (): Promise<Champion[]> => {
+    try {
+      const response = await apiClient.get('/standings/champions');
+      return response.data;
+    } catch (error) {
+      console.warn('Backend unavailable, using fallback champions:', error);
+      return [
+        { season: 2025, driver_name: "Max Verstappen", nationality: "Dutch", constructor_name: "Red Bull Racing", points: 437.0, wins: 9 },
+        { season: 2024, driver_name: "Max Verstappen", nationality: "Dutch", constructor_name: "Red Bull Racing", points: 575.0, wins: 15 },
+        { season: 2023, driver_name: "Max Verstappen", nationality: "Dutch", constructor_name: "Red Bull Racing", points: 575.0, wins: 19 },
+        { season: 2022, driver_name: "Max Verstappen", nationality: "Dutch", constructor_name: "Red Bull Racing", points: 454.0, wins: 15 },
+        { season: 2021, driver_name: "Max Verstappen", nationality: "Dutch", constructor_name: "Red Bull Racing", points: 395.5, wins: 10 },
+        { season: 2020, driver_name: "Lewis Hamilton", nationality: "British", constructor_name: "Mercedes", points: 347.0, wins: 11 },
+        { season: 2019, driver_name: "Lewis Hamilton", nationality: "British", constructor_name: "Mercedes", points: 413.0, wins: 11 }
+      ];
     }
   }
 };

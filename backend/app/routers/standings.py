@@ -13,3 +13,8 @@ async def get_driver_standings():
 async def get_constructor_standings():
     """Retrieve current World Constructors' Championship standings."""
     return await F1Service.get_constructors()
+
+@router.get("/champions", response_model=List[Dict[str, Any]])
+async def get_champions_history():
+    """Retrieve historical World Drivers' Champions list."""
+    return await F1Service.get_champions()

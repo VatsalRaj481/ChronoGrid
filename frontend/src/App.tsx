@@ -10,6 +10,7 @@ import { Drivers } from './pages/Drivers';
 import { RaceAnalysis } from './pages/RaceAnalysis';
 import { Circuits } from './pages/Circuits';
 import { StrategySimulator } from './pages/StrategySimulator';
+import { Champions } from './pages/Champions';
 
 export const App: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
             <Route path="/race-analysis" element={<RaceAnalysis />} />
             <Route path="/circuits" element={<Circuits />} />
             <Route path="/simulator" element={<StrategySimulator />} />
+            <Route path="/champions" element={<Champions />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

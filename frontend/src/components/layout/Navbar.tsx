@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Gauge, GitCompare, Trophy, Flag, Cpu, Search, User, Zap } from 'lucide-react';
+import { Activity, Gauge, GitCompare, Trophy, Flag, Cpu, Search, User, Zap, Award } from 'lucide-react';
 import { F1API } from '../../services/api';
 import { Race } from '../../types';
 
@@ -38,6 +38,7 @@ export const Navbar: React.FC = () => {
     { name: 'Race Analysis', path: '/race-analysis', icon: Flag },
     { name: 'Circuits', path: '/circuits', icon: Trophy },
     { name: 'Strategy Simulator', path: '/simulator', icon: Cpu },
+    { name: 'Champions', path: '/champions', icon: Award },
   ];
 
   return (
