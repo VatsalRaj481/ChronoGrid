@@ -118,18 +118,75 @@ export const RaceAnalysis: React.FC = () => {
     );
   }
 
-  // Active / Past races calculations
-  const getDriverForRound = (offset: number) => {
-    if (drivers.length === 0) {
-      return { full_name: 'Max Verstappen', team_name: 'Red Bull Racing', code: 'VER' };
+  // Lookup registry for actual F1 circuit lap counts to prevent incorrect total laps (Monaco = 78)
+  const getCircuitLaps = () => {
+    if (!selectedRace) return 56;
+    const cid = selectedRace.circuit_id.toLowerCase();
+    
+    const lapsRegistry: Record<string, number> = {
+      bahrain: 57,
+      jeddah: 50,
+      albert_park: 58,
+      shanghai: 56,
+      miami: 57,
+      imola: 63,
+      monaco: 78,
+      canada: 70,
+      catalunya: 66,
+      red_bull_ring: 71,
+      silverstone: 52,
+      hungaroring: 70,
+      spa: 44,
+      zandvoort: 72,
+      monza: 53,
+      baku: 51,
+      singapore: 62,
+      suzuka: 53,
+      americas: 56,
+      mexico: 71,
+      interlagos: 71,
+      las_vegas: 50,
+      losail: 57,
+      yas_marina: 58
+    };
+    
+    for (const [key, value] of Object.entries(lapsRegistry)) {
+      if (cid.includes(key)) return value;
     }
-    return drivers[(selectedRound + offset) % drivers.length];
+    return 56;
   };
 
-  const winner = getDriverForRound(0);
-  const second = getDriverForRound(1);
-  const third = getDriverForRound(2);
-  const fastestLapDriver = getDriverForRound(3);
+  // Determine podium and fastest lap finishers dynamically from active standings frontrunners
+  const getPodium = () => {
+    if (drivers.length < 3) {
+      return {
+        winner: { full_name: 'Max Verstappen', team_name: 'Red Bull Racing', code: 'VER' },
+        second: { full_name: 'Lando Norris', team_name: 'McLaren', code: 'NOR' },
+        third: { full_name: 'Charles Leclerc', team_name: 'Ferrari', code: 'LEC' },
+        fastest: { full_name: 'Lewis Hamilton', team_name: 'Mercedes', code: 'HAM' }
+      };
+    }
+    
+    // Deterministic selection from top standing positions based on round
+    const p1Idx = (selectedRound * 3) % Math.min(5, drivers.length);
+    let p2Idx = (selectedRound * 7) % Math.min(6, drivers.length);
+    if (p2Idx === p1Idx) p2Idx = (p2Idx + 1) % drivers.length;
+    let p3Idx = (selectedRound * 11) % Math.min(7, drivers.length);
+    while (p3Idx === p1Idx || p3Idx === p2Idx) {
+      p3Idx = (p3Idx + 1) % drivers.length;
+    }
+    
+    const fastIdx = (selectedRound * 13) % Math.min(8, drivers.length);
+    
+    return {
+      winner: drivers[p1Idx],
+      second: drivers[p2Idx],
+      third: drivers[p3Idx],
+      fastest: drivers[fastIdx]
+    };
+  };
+
+  const { winner, second, third, fastest } = getPodium();
 
   const getFastestLapTime = () => {
     if (!selectedRace) return '1:28.293';
@@ -156,17 +213,20 @@ export const RaceAnalysis: React.FC = () => {
   const pitTeam = (selectedRound % 2 === 0) ? 'Red Bull Racing' : 'McLaren';
 
   const getStints = () => {
-    const totalLaps = 50 + (selectedRound % 5) * 5; 
+    const totalLaps = getCircuitLaps(); 
     const isWet = ['spa', 'monaco', 'silverstone', 'montreal'].includes(selectedRace?.locality.toLowerCase() || '') && selectedRound % 2 === 1;
 
     if (isWet) {
+      const wetLaps = Math.round(totalLaps * 0.3);
+      const interLaps = Math.round(totalLaps * 0.5);
+      const dryLaps = totalLaps - wetLaps - interLaps;
       return [
         {
           driver: `${winner.code} (P1)`,
           stints: [
-            { compound: 'WET', laps: Math.round(totalLaps * 0.3), color: '#1A73E8' },
-            { compound: 'INTERMEDIATE', laps: Math.round(totalLaps * 0.5), color: '#00E676' },
-            { compound: 'SOFT', laps: totalLaps - Math.round(totalLaps * 0.3) - Math.round(totalLaps * 0.5), color: '#E10600' }
+            { compound: 'WET', laps: wetLaps, color: '#1A73E8' },
+            { compound: 'INTERMEDIATE', laps: interLaps, color: '#00E676' },
+            { compound: 'SOFT', laps: dryLaps, color: '#E10600' }
           ]
         },
         {
@@ -265,7 +325,7 @@ export const RaceAnalysis: React.FC = () => {
         <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-2">
           <div className="text-xs text-gray-400">FASTEST LAP</div>
           <div className="text-xl font-black text-cyan-400">{getFastestLapTime()}</div>
-          <div className="text-xs text-gray-400">{fastestLapDriver.full_name} ({fastestLapDriver.code})</div>
+          <div className="text-xs text-gray-400">{fastest.full_name} ({fastest.code})</div>
         </div>
         <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-2">
           <div className="text-xs text-gray-400">AVERAGE PIT DURATION</div>
