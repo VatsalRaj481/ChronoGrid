@@ -62,9 +62,9 @@ export const F1API = {
     }
   },
 
-  getTelemetry: async (driver: string = 'VER', lap: number = 1): Promise<TelemetryPoint[]> => {
+  getTelemetry: async (driver: string = 'VER', lap: number = 1, round: number = 1): Promise<TelemetryPoint[]> => {
     try {
-      const response = await apiClient.get(`/telemetry?driver=${driver}&lap=${lap}`);
+      const response = await apiClient.get(`/telemetry?driver=${driver}&lap=${lap}&round=${round}`);
       return response.data;
     } catch (error) {
       const points: TelemetryPoint[] = [];

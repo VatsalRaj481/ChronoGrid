@@ -49,8 +49,8 @@ export const TelemetryAnalysis: React.FC = () => {
       setLoading(true);
       try {
         const [dataA, dataB] = await Promise.all([
-          F1API.getTelemetry(driverA, lap),
-          F1API.getTelemetry(driverB, lap)
+          F1API.getTelemetry(driverA, lap, selectedRound),
+          F1API.getTelemetry(driverB, lap, selectedRound)
         ]);
 
         const selectedRace = races.find(r => r.round === selectedRound);

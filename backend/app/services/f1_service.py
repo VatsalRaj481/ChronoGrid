@@ -140,35 +140,89 @@ class F1Service:
         return fallback_races
 
     @staticmethod
-    async def get_telemetry(driver_code: str = "VER", lap: int = 1) -> List[Dict[str, Any]]:
-        cache_key = f"telemetry_{driver_code}_{lap}"
+    async def get_telemetry(driver_code: str = "VER", lap: int = 1, round_num: int = 1) -> List[Dict[str, Any]]:
+        cache_key = f"telemetry_{driver_code}_{round_num}_{lap}"
         cached = get_cached(cache_key)
         if cached:
             return cached
 
-        # High-fidelity realistic telemetry curve generator for lap telemetry visualization
+        # Generate seed based on driver, round, and lap to ensure unique and deterministic traces
+        driver_seed = sum(ord(c) for c in driver_code)
+        seed = driver_seed + round_num * 100 + lap * 10
+        
+        # Determine track configuration based on round
+        # Monaco (round 6/7) or similar street circuits are slow and twisty (lots of corners)
+        # Monza (round 13/15) is high-speed (few corners, long straights)
+        is_slow_track = (round_num % 3 == 0)
+        is_fast_track = (round_num % 3 == 1)
+        
+        num_corners = 18 if is_slow_track else (11 if is_fast_track else 15)
+        max_speed = 340.0 if is_fast_track else (290.0 if is_slow_track else 315.0)
+        
+        # Add driver-specific speed difference (championship leaders are slightly faster)
+        driver_offsets = {
+            "VER": 2.5, "NOR": 2.2, "LEC": 2.0, "PIA": 1.5,
+            "SAI": 1.3, "RUS": 1.2, "HAM": 1.0, "PER": 0.5
+        }
+        driver_offset = driver_offsets.get(driver_code, -1.0)
+        max_speed += driver_offset
+        
+        # Lap-by-lap variation (e.g. tires degrading slightly, battery levels)
+        lap_wear_decel = max(0.0, lap * 0.08)
+        max_speed -= min(5.0, lap_wear_decel)
+
         telemetry_points = []
-        base_speed = 310.0 if driver_code == "VER" else (308.0 if driver_code == "NOR" else 306.0)
         num_samples = 100
+        
         for i in range(num_samples):
             dist_pct = i / float(num_samples)
-            # Simulate corners, straights, braking zones
-            corner_factor = math.sin(dist_pct * math.pi * 8)
-            speed = max(80.0, base_speed - abs(corner_factor) * 210.0 + math.cos(dist_pct * 12) * 15.0)
-            throttle = 100.0 if corner_factor > -0.2 else max(0.0, (corner_factor + 1.0) * 50.0)
-            brake = 100.0 if corner_factor <= -0.6 else 0.0
-            rpm = int(speed * 38 + 3000)
-            gear = int(min(8, max(2, speed / 38.0)))
-            drs = 1 if (dist_pct > 0.15 and dist_pct < 0.35) or (dist_pct > 0.65 and dist_pct < 0.85) else 0
+            
+            # Formulate multi-frequency sine wave to simulate straight lines, corners, braking zones
+            corner_frequency = math.pi * num_corners
+            corner_wave = math.sin(dist_pct * corner_frequency)
+            
+            # Generate speed curve
+            speed = max(70.0, max_speed - abs(corner_wave) * (180.0 if is_slow_track else 140.0) + math.cos(dist_pct * 8) * 12.0)
+            
+            # Throttle and brake profiles matching the speed curve
+            if speed > max_speed - 40.0:
+                throttle = 100.0
+                brake = 0.0
+            elif speed < 120.0:
+                throttle = 0.0
+                brake = 80.0 + (i % 20)
+            else:
+                throttle = max(20.0, 100.0 - (max_speed - speed) * 1.5)
+                brake = 0.0
+                
+            # Randomize slightly based on seed to make each lap's trace look natural and organic
+            rnd_factor = math.sin(seed + i) * 1.5
+            speed = max(60.0, speed + rnd_factor)
+            throttle = max(0.0, min(100.0, throttle + rnd_factor * 0.5))
+            
+            rpm = int(speed * (35 if is_slow_track else 42) + 3200 + (i % 500))
+            gear = int(min(8, max(2, speed / (35.0 if is_slow_track else 42.0))))
+            
+            # DRS zones
+            drs = 0
+            if not is_slow_track:
+                if (dist_pct > 0.15 and dist_pct < 0.35) or (dist_pct > 0.65 and dist_pct < 0.85):
+                    drs = 1
+                    speed += 12.0
+            else:
+                if (dist_pct > 0.4 and dist_pct < 0.55):
+                    drs = 1
+                    speed += 8.0
 
-            # Calculate mock GPS coordinates (Monaco/Silverstone style loop)
+            # Dynamic GPS map layout based on round to make different tracks look unique
             angle = dist_pct * 2 * math.pi
-            r = 100 + 30 * math.sin(angle * 3)
+            r_modifier = 25 * math.sin(angle * (3 if is_slow_track else (2 if is_fast_track else 4)))
+            r = 100 + r_modifier
             x = r * math.cos(angle)
             y = r * math.sin(angle)
 
             telemetry_points.append({
-                "distance": round(dist_pct * 5891, 1),
+                "distance": round(dist_pct * (4200 if is_slow_track else (5700 if is_fast_track else 5100)), 1),
                 "distance_pct": round(dist_pct * 100, 1),
                 "speed": round(speed, 1),
                 "throttle": round(throttle, 1),
