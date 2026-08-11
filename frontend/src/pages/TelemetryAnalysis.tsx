@@ -68,10 +68,11 @@ export const TelemetryAnalysis: React.FC = () => {
           rpm: Math.round(pt.rpm * speedMultiplier)
         }));
 
+        // Removed the artificial 1% penalty (* 0.99) on Driver B's speed to allow accurate comparative testing
         const adjustedB = dataB.map(pt => ({
           ...pt,
-          speed: Math.round(pt.speed * speedMultiplier * 0.99),
-          rpm: Math.round(pt.rpm * speedMultiplier * 0.99)
+          speed: Math.round(pt.speed * speedMultiplier),
+          rpm: Math.round(pt.rpm * speedMultiplier)
         }));
 
         setTelemetryA(adjustedA);
@@ -87,6 +88,24 @@ export const TelemetryAnalysis: React.FC = () => {
     }
   }, [driverA, driverB, selectedRound, lap, races]);
 
+  // Build cumulative elapsed time arrays to calculate authentic time deltas
+  const timesA: number[] = [];
+  const timesB: number[] = [];
+  let cumulativeTimeA = 0;
+  let cumulativeTimeB = 0;
+
+  telemetryA.forEach((ptA, idx) => {
+    const ptB = telemetryB[idx] || ptA;
+    const dx = idx > 0 ? ptA.distance - telemetryA[idx - 1].distance : ptA.distance;
+    
+    // convert speed km/h to m/s -> speed / 3.6
+    cumulativeTimeA += dx / (Math.max(10, ptA.speed) / 3.6);
+    cumulativeTimeB += dx / (Math.max(10, ptB.speed) / 3.6);
+    
+    timesA.push(cumulativeTimeA);
+    timesB.push(cumulativeTimeB);
+  });
+
   // Combine datasets for synchronized Recharts rendering
   const combinedData = telemetryA.map((ptA, idx) => {
     const ptB = telemetryB[idx] || ptA;
@@ -97,6 +116,23 @@ export const TelemetryAnalysis: React.FC = () => {
     const perpY = Math.sin(angle + Math.PI / 2);
     
     const spread = 5; // 5-pixel separation width to show comparison side-by-side
+
+    // Time-Synchronized Dot Position matching:
+    // Finds the coordinate index where Driver B had elapsed the same time as Driver A has at the current index
+    const targetTime = timesA[idx];
+    let idxB = idx;
+    let minDiff = Infinity;
+    for (let i = 0; i < timesB.length; i++) {
+      const diff = Math.abs(timesB[i] - targetTime);
+      if (diff < minDiff) {
+        minDiff = diff;
+        idxB = i;
+      }
+    }
+    const ptBTimeSync = telemetryB[idxB] || ptB;
+    
+    // Calculate mathematically precise time delta (negative means Driver A is faster / ahead)
+    const timeDelta = timesA[idx] - timesB[idx];
 
     return {
       distance: ptA.distance,
@@ -114,8 +150,10 @@ export const TelemetryAnalysis: React.FC = () => {
       centerlineY: ptA.y,
       xA: ptA.x + perpX * spread,
       yA: ptA.y + perpY * spread,
-      xB: ptB.x - perpX * spread,
-      yB: ptB.y - perpY * spread
+      // Render B using its time-synchronized index to show true time gap relative positions on track!
+      xB: ptBTimeSync.x - perpX * spread,
+      yB: ptBTimeSync.y - perpY * spread,
+      timeDelta: timeDelta
     };
   });
 
@@ -360,7 +398,7 @@ export const TelemetryAnalysis: React.FC = () => {
               <div className="p-4 rounded-xl glass-panel border border-white/10 space-y-1">
                 <div className="text-[10px] text-gray-400">DELTA TIME</div>
                 <div className="text-xl font-black text-emerald-400">
-                  {((activePoint.speedA - activePoint.speedB) * -0.0015).toFixed(3)}s
+                  {activePoint.timeDelta > 0 ? `+${activePoint.timeDelta.toFixed(3)}s` : `${activePoint.timeDelta.toFixed(3)}s`}
                 </div>
               </div>
             </div>
@@ -451,7 +489,7 @@ export const TelemetryAnalysis: React.FC = () => {
                     {activePoint && (
                       <circle cx={activePoint.xA} cy={activePoint.yA} r="7" fill="#E10600" className="animate-pulse" />
                     )}
-                    {/* Pulsing overlay for Driver B (Cyan/Blue, offset inwards) */}
+                    {/* Pulsing overlay for Driver B (Cyan/Blue, offset inwards, time-synchronized) */}
                     {activePoint && (
                       <circle cx={activePoint.xB} cy={activePoint.yB} r="7" fill="#00F0FF" className="animate-pulse" />
                     )}
