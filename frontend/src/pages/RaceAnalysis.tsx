@@ -42,7 +42,83 @@ export const RaceAnalysis: React.FC = () => {
   }
 
   const selectedRace = races.find(r => r.round === selectedRound) || races[0] || null;
+  const now = new Date();
+  const raceDate = selectedRace ? new Date(`${selectedRace.date}T${selectedRace.time || '15:00:00Z'}`) : null;
+  const isFuture = raceDate ? raceDate > now : false;
 
+  // Render Pre-Race Simulation / Scheduled State if race is in the future
+  if (isFuture) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Header Panel */}
+        <div className="p-6 rounded-2xl glass-panel border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 animate-pulse">
+              <Clock className="w-4 h-4" /> UPCOMING RACE WEEKEND
+            </div>
+            <h1 className="text-3xl font-extrabold text-white">
+              {selectedRace?.race_name.toUpperCase()} <span className="text-gray-500 font-normal">| PRE-RACE BRIEFING</span>
+            </h1>
+          </div>
+          
+          {/* Dropdown Selector */}
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-mono text-gray-400">SELECT RACE:</span>
+            <select 
+              value={selectedRound}
+              onChange={(e) => setSelectedRound(Number(e.target.value))}
+              className="px-4 py-2 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#E10600] transition-colors"
+            >
+              {races.map(race => {
+                const isRaceFuture = new Date(`${race.date}T${race.time || '15:00:00Z'}`) > now;
+                return (
+                  <option key={race.round} value={race.round} className="bg-[#070709] text-white">
+                    Round {race.round}: {race.race_name} {isRaceFuture ? '🔮 Future' : '📊 Completed'}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        </div>
+
+        {/* Future Race Placeholder Screen */}
+        <div className="p-10 rounded-2xl glass-panel border border-white/10 flex flex-col items-center text-center space-y-6 max-w-3xl mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            <Calendar className="w-8 h-8 animate-pulse" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-white">SESSION NOT COMPLETED</h2>
+            <p className="text-sm text-gray-400 max-w-md">
+              The {selectedRace?.race_name} is scheduled for the 2026 season. Historical telemetry data and post-race strategic breakdowns will activate once this race concludes.
+            </p>
+          </div>
+          
+          {/* Race details details */}
+          <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs text-left p-4 rounded-xl bg-black/40 border border-white/5">
+            <div>
+              <div className="text-gray-500">SCHEDULED DATE</div>
+              <div className="text-white font-bold mt-0.5">{selectedRace?.date}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">SESSION TIME</div>
+              <div className="text-white font-bold mt-0.5">{selectedRace?.time || '14:00 UTC'}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">LOCATION</div>
+              <div className="text-cyan-400 font-bold mt-0.5">{selectedRace?.locality}, {selectedRace?.country}</div>
+            </div>
+          </div>
+          
+          {/* Prediction link */}
+          <div className="text-xs text-gray-400 border-t border-white/10 pt-6 w-full">
+            💡 <span className="text-gray-300">Strategy Prediction Model:</span> You can run simulated compound degradation models for this circuit in the <a href="/simulator" className="text-[#E10600] hover:underline font-bold">Strategy Simulator</a>.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Active / Past races calculations
   const getDriverForRound = (offset: number) => {
     if (drivers.length === 0) {
       return { full_name: 'Max Verstappen', team_name: 'Red Bull Racing', code: 'VER' };
@@ -162,11 +238,14 @@ export const RaceAnalysis: React.FC = () => {
             onChange={(e) => setSelectedRound(Number(e.target.value))}
             className="px-4 py-2 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#E10600] transition-colors"
           >
-            {races.map(race => (
-              <option key={race.round} value={race.round} className="bg-[#070709] text-white">
-                Round {race.round}: {race.race_name}
-              </option>
-            ))}
+            {races.map(race => {
+              const isRaceFuture = new Date(`${race.date}T${race.time || '15:00:00Z'}`) > now;
+              return (
+                <option key={race.round} value={race.round} className="bg-[#070709] text-white">
+                  Round {race.round}: {race.race_name} {isRaceFuture ? '🔮 Future' : '📊 Completed'}
+                </option>
+              );
+            })}
           </select>
         </div>
       </div>
