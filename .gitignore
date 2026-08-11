@@ -23,3 +23,8 @@ ENV/
 .DS_Store
 Thumbs.db
 *.log
+
+# Project specific caches and builds
+frontend/build/
+backend/f1_cache/
+backend/f1_cache_backup/
