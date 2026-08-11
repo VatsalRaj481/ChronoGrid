@@ -123,21 +123,21 @@ export const Dashboard: React.FC = () => {
               </div>
               <div className="text-3xl font-black font-mono text-white">348.2 <span className="text-sm font-normal text-gray-400">KM/H</span></div>
               <div className="text-xs text-gray-300 flex items-center justify-between">
-                <span>Max Verstappen (RED BULL)</span>
+                <span>{drivers[0] ? `${drivers[0].full_name} (${drivers[0].team_name.toUpperCase()})` : 'Max Verstappen (RED BULL RACING)'}</span>
                 <span className="font-mono text-emerald-400">DRS ON</span>
               </div>
             </div>
 
             <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-3">
               <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-                <span>FASTEST LAP S3</span>
+                <span>FASTEST LAP</span>
                 <span className="text-cyan-400">
                   {nextRace ? nextRace.locality.toUpperCase() : 'LOADING...'}
                 </span>
               </div>
-              <div className="text-3xl font-black font-mono text-white">27.142 <span className="text-sm font-normal text-gray-400">SEC</span></div>
+              <div className="text-3xl font-black font-mono text-white">1:27.142 <span className="text-sm font-normal text-gray-400">MIN</span></div>
               <div className="text-xs text-gray-300 flex items-center justify-between">
-                <span>Lando Norris (MCLAREN)</span>
+                <span>{drivers[1] ? `${drivers[1].full_name} (${drivers[1].team_name.toUpperCase()})` : 'Lando Norris (MCLAREN)'}</span>
                 <span className="font-mono text-purple-400">PURPLE SECTOR</span>
               </div>
             </div>
