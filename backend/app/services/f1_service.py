@@ -222,6 +222,19 @@ class F1Service:
         driver_offset = driver_offsets.get(driver_code, -1.0)
         max_speed += driver_offset
         
+        # Define driver-specific styles to create visual separation on overlays (throttle profiles/braking indexes)
+        driver_style = {
+            "VER": {"throttle_ramp": 1.02, "brake_point": -1},
+            "NOR": {"throttle_ramp": 0.98, "brake_point": 1},
+            "LEC": {"throttle_ramp": 1.01, "brake_point": 0},
+            "PIA": {"throttle_ramp": 0.95, "brake_point": 2},
+            "HAM": {"throttle_ramp": 0.96, "brake_point": -2},
+            "SAI": {"throttle_ramp": 0.99, "brake_point": -1},
+            "RUS": {"throttle_ramp": 1.00, "brake_point": 1},
+            "PER": {"throttle_ramp": 0.94, "brake_point": 2}
+        }
+        style = driver_style.get(driver_code, {"throttle_ramp": 0.95, "brake_point": 0})
+        
         # Lap-by-lap variation (e.g. tires degrading slightly, battery levels)
         lap_wear_decel = max(0.0, lap * 0.08)
         max_speed -= min(5.0, lap_wear_decel)
@@ -239,15 +252,15 @@ class F1Service:
             # Generate speed curve
             speed = max(70.0, max_speed - abs(corner_wave) * (180.0 if is_slow_track else 140.0) + math.cos(dist_pct * 8) * 12.0)
             
-            # Throttle and brake profiles matching the speed curve
+            # Throttle and brake profiles matching the speed curve with driver character shifts
             if speed > max_speed - 40.0:
-                throttle = 100.0
+                throttle = 100.0 * style["throttle_ramp"]
                 brake = 0.0
             elif speed < 120.0:
                 throttle = 0.0
-                brake = 80.0 + (i % 20)
+                brake = 80.0 + ((i + style["brake_point"]) % 20)
             else:
-                throttle = max(20.0, 100.0 - (max_speed - speed) * 1.5)
+                throttle = max(20.0, (100.0 - (max_speed - speed) * 1.5) * style["throttle_ramp"])
                 brake = 0.0
                 
             # Randomize slightly based on seed to make each lap's trace look natural and organic
