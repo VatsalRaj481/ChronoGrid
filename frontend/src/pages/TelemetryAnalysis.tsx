@@ -90,6 +90,14 @@ export const TelemetryAnalysis: React.FC = () => {
   // Combine datasets for synchronized Recharts rendering
   const combinedData = telemetryA.map((ptA, idx) => {
     const ptB = telemetryB[idx] || ptA;
+    const angle = (idx / telemetryA.length) * 2 * Math.PI;
+    
+    // Perpendicular vector for visual separation of driving lines
+    const perpX = Math.cos(angle + Math.PI / 2);
+    const perpY = Math.sin(angle + Math.PI / 2);
+    
+    const spread = 5; // 5-pixel separation width to show comparison side-by-side
+
     return {
       distance: ptA.distance,
       speedA: ptA.speed,
@@ -102,10 +110,12 @@ export const TelemetryAnalysis: React.FC = () => {
       rpmB: ptB.rpm,
       gearA: ptA.gear,
       gearB: ptB.gear,
-      xA: ptA.x,
-      yA: ptA.y,
-      xB: ptB.x,
-      yB: ptB.y
+      centerlineX: ptA.x,
+      centerlineY: ptA.y,
+      xA: ptA.x + perpX * spread,
+      yA: ptA.y + perpY * spread,
+      xB: ptB.x - perpX * spread,
+      yB: ptB.y - perpY * spread
     };
   });
 
@@ -190,9 +200,9 @@ export const TelemetryAnalysis: React.FC = () => {
     .filter(l => l <= totalLaps)
     .sort((a, b) => a - b);
 
-  // SVG dynamic track line rendering coordinates generator
-  const trackPointsString = combinedData
-    .map(pt => `${pt.xA},${pt.yA}`)
+  // SVG dynamic track centerline coordinate string
+  const trackCenterlineString = combinedData
+    .map(pt => `${pt.centerlineX},${pt.centerlineY}`)
     .join(' ');
 
   return (
@@ -395,7 +405,12 @@ export const TelemetryAnalysis: React.FC = () => {
               <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
                 <div className="flex items-center justify-between text-xs font-mono text-gray-400">
                   <span className="text-white font-bold">THROTTLE & BRAKE PEDAL ACTUATION</span>
-                  <span>0% TO 100%</span>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <span className="flex items-center gap-1 text-[#E10600]"><span className="w-2 h-2 rounded-full bg-[#E10600]" /> {driverA} (THR)</span>
+                    <span className="flex items-center gap-1 text-[#FFB800]"><span className="w-2.5 h-0.5 border-t-2 border-dashed border-[#FFB800]" /> {driverA} (BRK)</span>
+                    <span className="flex items-center gap-1 text-[#00F0FF]"><span className="w-2 h-2 rounded-full bg-[#00F0FF]" /> {driverB} (THR)</span>
+                    <span className="flex items-center gap-1 text-purple-400"><span className="w-2.5 h-0.5 border-t-2 border-dashed border-purple-400" /> {driverB} (BRK)</span>
+                  </div>
                 </div>
                 <div className="h-44 w-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -403,8 +418,12 @@ export const TelemetryAnalysis: React.FC = () => {
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis dataKey="distance" stroke="#666" fontSize={10} unit="m" />
                       <YAxis stroke="#666" fontSize={10} domain={[0, 100]} />
+                      {/* Driver A Actuation Overlay */}
                       <Line type="stepAfter" dataKey="throttleA" stroke="#E10600" strokeWidth={2} dot={false} isAnimationActive={false} />
-                      <Line type="stepAfter" dataKey="brakeA" stroke="#FFB800" strokeWidth={2} strokeDasharray="4 4" dot={false} isAnimationActive={false} />
+                      <Line type="stepAfter" dataKey="brakeA" stroke="#FFB800" strokeWidth={1.5} strokeDasharray="3 3" dot={false} isAnimationActive={false} />
+                      {/* Driver B Actuation Overlay */}
+                      <Line type="stepAfter" dataKey="throttleB" stroke="#00F0FF" strokeWidth={2} dot={false} isAnimationActive={false} />
+                      <Line type="stepAfter" dataKey="brakeB" stroke="#A855F7" strokeWidth={1.5} strokeDasharray="3 3" dot={false} isAnimationActive={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -418,23 +437,23 @@ export const TelemetryAnalysis: React.FC = () => {
                 <div className="relative w-48 h-48 flex items-center justify-center bg-black/40 rounded-full border border-white/10">
                   <svg className="w-40 h-40" viewBox="-150 -150 300 300">
                     {/* Render the actual dynamic track layout shape instead of a static circle */}
-                    {trackPointsString && (
+                    {trackCenterlineString && (
                       <polyline
-                        points={trackPointsString}
+                        points={trackCenterlineString}
                         fill="none"
-                        stroke="rgba(255,255,255,0.18)"
+                        stroke="rgba(255,255,255,0.15)"
                         strokeWidth="5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
                     )}
-                    {/* Pulsing overlay for Driver A (Red) */}
+                    {/* Pulsing overlay for Driver A (Red, offset outwards) */}
                     {activePoint && (
-                      <circle cx={activePoint.xA} cy={activePoint.yA} r="8" fill="#E10600" className="animate-pulse" />
+                      <circle cx={activePoint.xA} cy={activePoint.yA} r="7" fill="#E10600" className="animate-pulse" />
                     )}
-                    {/* Pulsing overlay for Driver B (Cyan/Blue) */}
+                    {/* Pulsing overlay for Driver B (Cyan/Blue, offset inwards) */}
                     {activePoint && (
-                      <circle cx={activePoint.xB} cy={activePoint.yB} r="8" fill="#00F0FF" className="animate-pulse" />
+                      <circle cx={activePoint.xB} cy={activePoint.yB} r="7" fill="#00F0FF" className="animate-pulse" />
                     )}
                   </svg>
                 </div>
