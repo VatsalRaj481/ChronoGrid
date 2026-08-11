@@ -11,6 +11,7 @@ interface CircuitDetails {
   drs: number;
   record: string;
   turns: number;
+  image: string;
 }
 
 export const Circuits: React.FC = () => {
@@ -31,30 +32,30 @@ export const Circuits: React.FC = () => {
   }, []);
 
   const circuitRegistry: Record<string, CircuitDetails> = {
-    bahrain: { name: 'Bahrain International Circuit', location: 'Sakhir, Bahrain', length: '5.412 km', laps: 57, drs: 3, record: '1:31.447 (Pedro de la Rosa)', turns: 15 },
-    jeddah: { name: 'Jeddah Corniche Circuit', location: 'Jeddah, Saudi Arabia', length: '6.174 km', laps: 50, drs: 3, record: '1:30.734 (Lewis Hamilton)', turns: 27 },
-    albert_park: { name: 'Albert Park Circuit', location: 'Melbourne, Australia', length: '5.278 km', laps: 58, drs: 4, record: '1:19.813 (Charles Leclerc)', turns: 14 },
-    shanghai: { name: 'Shanghai International Circuit', location: 'Shanghai, China', length: '5.451 km', laps: 56, drs: 2, record: '1:32.238 (Michael Schumacher)', turns: 16 },
-    miami: { name: 'Miami International Autodrome', location: 'Miami, USA', length: '5.412 km', laps: 57, drs: 3, record: '1:29.708 (Max Verstappen)', turns: 19 },
-    imola: { name: 'Autodromo Enzo e Dino Ferrari', location: 'Imola, Italy', length: '4.909 km', laps: 63, drs: 1, record: '1:15.484 (Lewis Hamilton)', turns: 19 },
-    monaco: { name: 'Circuit de Monaco', location: 'Monte Carlo, Monaco', length: '3.337 km', laps: 78, drs: 1, record: '1:12.909 (Lewis Hamilton)', turns: 19 },
-    canada: { name: 'Circuit Gilles Villeneuve', location: 'Montreal, Canada', length: '4.361 km', laps: 70, drs: 3, record: '1:13.078 (Valtteri Bottas)', turns: 14 },
-    catalunya: { name: 'Circuit de Barcelona-Catalunya', location: 'Barcelona, Spain', length: '4.657 km', laps: 66, drs: 2, record: '1:16.330 (Max Verstappen)', turns: 14 },
-    red_bull_ring: { name: 'Red Bull Ring', location: 'Spielberg, Austria', length: '4.318 km', laps: 71, drs: 3, record: '1:05.619 (Carlos Sainz)', turns: 10 },
-    silverstone: { name: 'Silverstone Circuit', location: 'Silverstone, UK', length: '5.891 km', laps: 52, drs: 2, record: '1:27.097 (Max Verstappen)', turns: 18 },
-    hungaroring: { name: 'Hungaroring', location: 'Budapest, Hungary', length: '4.381 km', laps: 70, drs: 2, record: '1:16.627 (Lewis Hamilton)', turns: 14 },
-    spa: { name: 'Circuit de Spa-Francorchamps', location: 'Stavelot, Belgium', length: '7.004 km', laps: 44, drs: 2, record: '1:46.286 (Valtteri Bottas)', turns: 19 },
-    zandvoort: { name: 'Circuit Zandvoort', location: 'Zandvoort, Netherlands', length: '4.259 km', laps: 72, drs: 2, record: '1:11.097 (Lewis Hamilton)', turns: 14 },
-    monza: { name: 'Autodromo Nazionale Monza', location: 'Monza, Italy', length: '5.793 km', laps: 53, drs: 2, record: '1:21.046 (Rubens Barrichello)', turns: 11 },
-    baku: { name: 'Baku City Circuit', location: 'Baku, Azerbaijan', length: '6.003 km', laps: 51, drs: 2, record: '1:43.009 (Charles Leclerc)', turns: 20 },
-    singapore: { name: 'Marina Bay Street Circuit', location: 'Singapore', length: '4.940 km', laps: 62, drs: 3, record: '1:35.867 (Lewis Hamilton)', turns: 19 },
-    suzuka: { name: 'Suzuka Circuit', location: 'Suzuka, Japan', length: '5.807 km', laps: 53, drs: 1, record: '1:30.983 (Lewis Hamilton)', turns: 18 },
-    americas: { name: 'Circuit of the Americas', location: 'Austin, USA', length: '5.513 km', laps: 56, drs: 2, record: '1:36.169 (Charles Leclerc)', turns: 20 },
-    mexico: { name: 'Autódromo Hermanos Rodríguez', location: 'Mexico City, Mexico', length: '4.304 km', laps: 71, drs: 3, record: '1:17.774 (Valtteri Bottas)', turns: 17 },
-    interlagos: { name: 'Autódromo José Carlos Pace', location: 'São Paulo, Brazil', length: '4.309 km', laps: 71, drs: 2, record: '1:10.540 (Valtteri Bottas)', turns: 15 },
-    las_vegas: { name: 'Las Vegas Strip Circuit', location: 'Las Vegas, USA', length: '6.201 km', laps: 50, drs: 2, record: '1:35.490 (Oscar Piastri)', turns: 17 },
-    losail: { name: 'Lusail International Circuit', location: 'Lusail, Qatar', length: '5.419 km', laps: 57, drs: 1, record: '1:24.319 (Max Verstappen)', turns: 16 },
-    yas_marina: { name: 'Yas Marina Circuit', location: 'Abu Dhabi, UAE', length: '5.281 km', laps: 58, drs: 2, record: '1:26.103 (Max Verstappen)', turns: 16 }
+    bahrain: { name: 'Bahrain International Circuit', location: 'Sakhir, Bahrain', length: '5.412 km', laps: 57, drs: 3, record: '1:31.447 (Pedro de la Rosa)', turns: 15, image: 'Bahrain' },
+    jeddah: { name: 'Jeddah Corniche Circuit', location: 'Jeddah, Saudi Arabia', length: '6.174 km', laps: 50, drs: 3, record: '1:30.734 (Lewis Hamilton)', turns: 27, image: 'Saudi_Arabia' },
+    albert_park: { name: 'Albert Park Circuit', location: 'Melbourne, Australia', length: '5.278 km', laps: 58, drs: 4, record: '1:19.813 (Charles Leclerc)', turns: 14, image: 'Australia' },
+    shanghai: { name: 'Shanghai International Circuit', location: 'Shanghai, China', length: '5.451 km', laps: 56, drs: 2, record: '1:32.238 (Michael Schumacher)', turns: 16, image: 'China' },
+    miami: { name: 'Miami International Autodrome', location: 'Miami, USA', length: '5.412 km', laps: 57, drs: 3, record: '1:29.708 (Max Verstappen)', turns: 19, image: 'Miami' },
+    imola: { name: 'Autodromo Enzo e Dino Ferrari', location: 'Imola, Italy', length: '4.909 km', laps: 63, drs: 1, record: '1:15.484 (Lewis Hamilton)', turns: 19, image: 'Emilia_Romagna' },
+    monaco: { name: 'Circuit de Monaco', location: 'Monte Carlo, Monaco', length: '3.337 km', laps: 78, drs: 1, record: '1:12.909 (Lewis Hamilton)', turns: 19, image: 'Monaco' },
+    canada: { name: 'Circuit Gilles Villeneuve', location: 'Montreal, Canada', length: '4.361 km', laps: 70, drs: 3, record: '1:13.078 (Valtteri Bottas)', turns: 14, image: 'Canada' },
+    catalunya: { name: 'Circuit de Barcelona-Catalunya', location: 'Barcelona, Spain', length: '4.657 km', laps: 66, drs: 2, record: '1:16.330 (Max Verstappen)', turns: 14, image: 'Spain' },
+    red_bull_ring: { name: 'Red Bull Ring', location: 'Spielberg, Austria', length: '4.318 km', laps: 71, drs: 3, record: '1:05.619 (Carlos Sainz)', turns: 10, image: 'Austria' },
+    silverstone: { name: 'Silverstone Circuit', location: 'Silverstone, UK', length: '5.891 km', laps: 52, drs: 2, record: '1:27.097 (Max Verstappen)', turns: 18, image: 'Great_Britain' },
+    hungaroring: { name: 'Hungaroring', location: 'Budapest, Hungary', length: '4.381 km', laps: 70, drs: 2, record: '1:16.627 (Lewis Hamilton)', turns: 14, image: 'Hungary' },
+    spa: { name: 'Circuit de Spa-Francorchamps', location: 'Stavelot, Belgium', length: '7.004 km', laps: 44, drs: 2, record: '1:46.286 (Valtteri Bottas)', turns: 19, image: 'Belgium' },
+    zandvoort: { name: 'Circuit Zandvoort', location: 'Zandvoort, Netherlands', length: '4.259 km', laps: 72, drs: 2, record: '1:11.097 (Lewis Hamilton)', turns: 14, image: 'Netherlands' },
+    monza: { name: 'Autodromo Nazionale Monza', location: 'Monza, Italy', length: '5.793 km', laps: 53, drs: 2, record: '1:21.046 (Rubens Barrichello)', turns: 11, image: 'Italy' },
+    baku: { name: 'Baku City Circuit', location: 'Baku, Azerbaijan', length: '6.003 km', laps: 51, drs: 2, record: '1:43.009 (Charles Leclerc)', turns: 20, image: 'Azerbaijan' },
+    singapore: { name: 'Marina Bay Street Circuit', location: 'Singapore', length: '4.940 km', laps: 62, drs: 3, record: '1:35.867 (Lewis Hamilton)', turns: 19, image: 'Singapore' },
+    suzuka: { name: 'Suzuka Circuit', location: 'Suzuka, Japan', length: '5.807 km', laps: 53, drs: 1, record: '1:30.983 (Lewis Hamilton)', turns: 18, image: 'Japan' },
+    americas: { name: 'Circuit of the Americas', location: 'Austin, USA', length: '5.513 km', laps: 56, drs: 2, record: '1:36.169 (Charles Leclerc)', turns: 20, image: 'USA' },
+    mexico: { name: 'Autódromo Hermanos Rodríguez', location: 'Mexico City, Mexico', length: '4.304 km', laps: 71, drs: 3, record: '1:17.774 (Valtteri Bottas)', turns: 17, image: 'Mexico' },
+    interlagos: { name: 'Autódromo José Carlos Pace', location: 'São Paulo, Brazil', length: '4.309 km', laps: 71, drs: 2, record: '1:10.540 (Valtteri Bottas)', turns: 15, image: 'Brazil' },
+    las_vegas: { name: 'Las Vegas Strip Circuit', location: 'Las Vegas, USA', length: '6.201 km', laps: 50, drs: 2, record: '1:35.490 (Oscar Piastri)', turns: 17, image: 'Las_Vegas' },
+    losail: { name: 'Lusail International Circuit', location: 'Lusail, Qatar', length: '5.419 km', laps: 57, drs: 1, record: '1:24.319 (Max Verstappen)', turns: 16, image: 'Qatar' },
+    yas_marina: { name: 'Yas Marina Circuit', location: 'Abu Dhabi, UAE', length: '5.281 km', laps: 58, drs: 2, record: '1:26.103 (Max Verstappen)', turns: 16, image: 'Abu_Dhabi' }
   };
 
   if (loading) {
@@ -93,7 +94,8 @@ export const Circuits: React.FC = () => {
         laps: registryInfo.laps,
         drs: registryInfo.drs,
         record: registryInfo.record,
-        turns: registryInfo.turns
+        turns: registryInfo.turns,
+        image: registryInfo.image
       };
     }
     const nameHash = c.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -105,7 +107,8 @@ export const Circuits: React.FC = () => {
       length: `${generatedLength} km`,
       drs: generatedDrs,
       record: `1:18.${100 + (nameHash % 899)} (Simulated Lap Record)`,
-      turns: generatedTurns
+      turns: generatedTurns,
+      image: 'Monaco'
     };
   });
 
@@ -127,39 +130,53 @@ export const Circuits: React.FC = () => {
       </div>
 
       {/* Grid List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {circuitList.map((c) => (
-          <div key={c.id} className="p-8 rounded-2xl glass-panel border border-white/10 space-y-6 hover:border-[#E10600]/40 transition-all group">
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="flex items-center gap-1 text-xs font-mono text-[#E10600]">
-                  <MapPin className="w-3.5 h-3.5" /> {c.location}
+          <div key={c.id} className="p-6 sm:p-8 rounded-2xl glass-panel border border-white/10 space-y-6 hover:border-[#E10600]/40 transition-all group flex flex-col md:flex-row gap-6 items-center">
+            <div className="flex-grow space-y-6 w-full">
+              <div className="flex justify-between items-start">
+                <div>
+                  <span className="flex items-center gap-1 text-xs font-mono text-[#E10600]">
+                    <MapPin className="w-3.5 h-3.5" /> {c.location}
+                  </span>
+                  <h3 className="text-2xl font-black text-white mt-1 group-hover:text-[#E10600] transition-colors">{c.name}</h3>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 font-mono text-xs text-cyan-400 shrink-0">
+                  {c.laps} LAPS
                 </span>
-                <h3 className="text-2xl font-black text-white mt-1 group-hover:text-[#E10600] transition-colors">{c.name}</h3>
               </div>
-              <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 font-mono text-xs text-cyan-400">
-                {c.laps} LAPS
-              </span>
+
+              <div className="grid grid-cols-3 gap-4 font-mono text-xs p-4 rounded-xl bg-black/40 border border-white/5 text-center">
+                <div>
+                  <div className="text-gray-400">LENGTH</div>
+                  <div className="font-bold text-white mt-1">{c.length}</div>
+                </div>
+                <div>
+                  <div className="text-gray-400">TURNS</div>
+                  <div className="font-bold text-white mt-1">{c.turns} TURNS</div>
+                </div>
+                <div>
+                  <div className="text-gray-400">DRS ZONES</div>
+                  <div className="font-bold text-amber-400 mt-1">{c.drs} ZONES</div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between text-xs font-mono text-gray-300">
+                <span className="flex items-center gap-1.5"><Trophy className="w-4 h-4 text-[#FFB800]" /> LAP RECORD:</span>
+                <span className="font-bold text-white text-right">{c.record}</span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 font-mono text-xs p-4 rounded-xl bg-black/40 border border-white/5 text-center">
-              <div>
-                <div className="text-gray-400">LENGTH</div>
-                <div className="font-bold text-white mt-1">{c.length}</div>
-              </div>
-              <div>
-                <div className="text-gray-400">TURNS</div>
-                <div className="font-bold text-white mt-1">{c.turns} TURNS</div>
-              </div>
-              <div>
-                <div className="text-gray-400">DRS ZONES</div>
-                <div className="font-bold text-amber-400 mt-1">{c.drs} ZONES</div>
-              </div>
-            </div>
-
-            <div className="pt-2 flex items-center justify-between text-xs font-mono text-gray-300">
-              <span className="flex items-center gap-1.5"><Trophy className="w-4 h-4 text-[#FFB800]" /> LAP RECORD:</span>
-              <span className="font-bold text-white">{c.record}</span>
+            {/* Track Map Layout Image */}
+            <div className="w-32 h-32 flex items-center justify-center p-3 rounded-xl bg-black/40 border border-white/5 shrink-0 self-center">
+              <img 
+                src={`https://media.formula1.com/image/upload/content/dam/fom-website/2018-redesign-assets/circuit-maps-16x9/${c.image}_Circuit.png`}
+                alt={`${c.name} track map`}
+                className="max-w-full max-h-full object-contain filter invert opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
             </div>
           </div>
         ))}
