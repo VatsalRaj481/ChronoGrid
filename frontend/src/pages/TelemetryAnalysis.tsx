@@ -103,7 +103,9 @@ export const TelemetryAnalysis: React.FC = () => {
       gearA: ptA.gear,
       gearB: ptB.gear,
       xA: ptA.x,
-      yA: ptA.y
+      yA: ptA.y,
+      xB: ptB.x,
+      yB: ptB.y
     };
   });
 
@@ -163,6 +165,36 @@ export const TelemetryAnalysis: React.FC = () => {
     return `${selectedRace.locality.toUpperCase()} - TURN ${turnNum}`;
   };
 
+  // Determine total laps dynamically to include correct last lap in dropdown options
+  const getCircuitLaps = () => {
+    const selectedRace = races.find(r => r.round === selectedRound);
+    if (!selectedRace) return 56;
+    const cid = selectedRace.circuit_id.toLowerCase();
+    
+    const lapsRegistry: Record<string, number> = {
+      bahrain: 57, jeddah: 50, albert_park: 58, shanghai: 56, miami: 57, imola: 63,
+      monaco: 78, canada: 70, catalunya: 66, red_bull_ring: 71, silverstone: 52,
+      hungaroring: 70, spa: 44, zandvoort: 72, monza: 53, baku: 51, singapore: 62,
+      suzuka: 53, americas: 56, mexico: 71, interlagos: 71, las_vegas: 50,
+      losail: 57, yas_marina: 58
+    };
+    
+    for (const [key, value] of Object.entries(lapsRegistry)) {
+      if (cid.includes(key)) return value;
+    }
+    return 56;
+  };
+
+  const totalLaps = getCircuitLaps();
+  const lapOptions = Array.from(new Set([1, 2, 3, 4, 5, 10, 15, 20, 30, 40, totalLaps]))
+    .filter(l => l <= totalLaps)
+    .sort((a, b) => a - b);
+
+  // SVG dynamic track line rendering coordinates generator
+  const trackPointsString = combinedData
+    .map(pt => `${pt.xA},${pt.yA}`)
+    .join(' ');
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       {/* Studio Control Header */}
@@ -183,7 +215,10 @@ export const TelemetryAnalysis: React.FC = () => {
             <span className="text-gray-400 font-bold">GP:</span>
             <select
               value={selectedRound}
-              onChange={(e) => setSelectedRound(Number(e.target.value))}
+              onChange={(e) => {
+                setSelectedRound(Number(e.target.value));
+                setLap(1); // Reset to lap 1 when track changes
+              }}
               className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
             >
               {races.map(r => (
@@ -202,9 +237,9 @@ export const TelemetryAnalysis: React.FC = () => {
               onChange={(e) => setLap(Number(e.target.value))}
               className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
             >
-              {[1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 40, 50].map(l => (
+              {lapOptions.map(l => (
                 <option key={l} value={l} className="bg-[#121218] text-white">
-                  Lap {l}
+                  {l === totalLaps ? `Lap ${l} (Last Lap)` : `Lap ${l}`}
                 </option>
               ))}
             </select>
@@ -332,7 +367,7 @@ export const TelemetryAnalysis: React.FC = () => {
                   </span>
                   <div className="flex items-center gap-4">
                     <span className="flex items-center gap-1 text-[#E10600]"><span className="w-2 h-2 rounded-full bg-[#E10600]" /> {driverA}</span>
-                    <span className="flex items-center gap-1 text-cyan-400"><span className="w-2 h-2 rounded-full bg-cyan-400" /> {driverB}</span>
+                    <span className="flex items-center gap-1 text-cyan-400"><span className="w-2.5 h-2.5 rounded bg-cyan-400" /> {driverB}</span>
                   </div>
                 </div>
                 <div className="h-64 w-full">
@@ -382,13 +417,28 @@ export const TelemetryAnalysis: React.FC = () => {
                 <div className="text-xs font-mono text-gray-400 self-start">2D GPS TRACK POSITION</div>
                 <div className="relative w-48 h-48 flex items-center justify-center bg-black/40 rounded-full border border-white/10">
                   <svg className="w-40 h-40" viewBox="-150 -150 300 300">
-                    <circle cx="0" cy="0" r="100" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="6" strokeDasharray="8 4" />
+                    {/* Render the actual dynamic track layout shape instead of a static circle */}
+                    {trackPointsString && (
+                      <polyline
+                        points={trackPointsString}
+                        fill="none"
+                        stroke="rgba(255,255,255,0.18)"
+                        strokeWidth="5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    )}
+                    {/* Pulsing overlay for Driver A (Red) */}
                     {activePoint && (
                       <circle cx={activePoint.xA} cy={activePoint.yA} r="8" fill="#E10600" className="animate-pulse" />
                     )}
+                    {/* Pulsing overlay for Driver B (Cyan/Blue) */}
+                    {activePoint && (
+                      <circle cx={activePoint.xB} cy={activePoint.yB} r="8" fill="#00F0FF" className="animate-pulse" />
+                    )}
                   </svg>
                 </div>
-                <div className="text-[10px] font-mono text-gray-400 text-center uppercase">
+                <div className="text-[10px] font-mono text-gray-400 text-center uppercase mt-2">
                   {getCornerLabel()}
                 </div>
               </div>
