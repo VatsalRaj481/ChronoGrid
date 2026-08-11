@@ -9,6 +9,12 @@ export const Dashboard: React.FC = () => {
   const [constructors, setConstructors] = useState<Constructor[]>([]);
   const [races, setRaces] = useState<Race[]>([]);
   const [loading, setLoading] = useState(true);
+  const [latestFastestLap, setLatestFastestLap] = useState<{
+    time: string;
+    driver_name: string;
+    driver_team: string;
+    locality: string;
+  } | null>(null);
 
   const nextRace = races.length > 0 
     ? [...races].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
@@ -26,6 +32,24 @@ export const Dashboard: React.FC = () => {
         setDrivers(dData);
         setConstructors(cData);
         setRaces(rData);
+
+        // Dynamic lookup for the latest completed race to render actual fastest laps (no future Zandvoort placeholders)
+        const now = new Date();
+        const completed = rData.filter(r => new Date(`${r.date}T${r.time || '15:00:00Z'}`) < now);
+        if (completed.length > 0) {
+          const latest = completed[completed.length - 1];
+          const results = await F1API.getRaceResults(latest.round);
+          if (results && results.fastest_lap) {
+            setLatestFastestLap({
+              time: results.fastest_lap.time,
+              driver_name: results.fastest_lap.driver_name,
+              driver_team: results.winner.team_name, // Fallback constructor reference
+              locality: latest.locality.toUpperCase()
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Dashboard loading error:", err);
       } finally {
         setLoading(false);
       }
@@ -130,14 +154,22 @@ export const Dashboard: React.FC = () => {
 
             <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-3">
               <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-                <span>FASTEST LAP</span>
-                <span className="text-cyan-400">
-                  {nextRace ? nextRace.locality.toUpperCase() : 'LOADING...'}
+                <span>LATEST FASTEST LAP</span>
+                <span className="text-cyan-400 font-bold">
+                  {latestFastestLap ? latestFastestLap.locality : 'SILVERSTONE'}
                 </span>
               </div>
-              <div className="text-3xl font-black font-mono text-white">1:27.142 <span className="text-sm font-normal text-gray-400">MIN</span></div>
+              <div className="text-3xl font-black font-mono text-white">
+                {latestFastestLap ? latestFastestLap.time : '1:28.293'} <span className="text-sm font-normal text-gray-400">MIN</span>
+              </div>
               <div className="text-xs text-gray-300 flex items-center justify-between">
-                <span>{drivers[1] ? `${drivers[1].full_name} (${drivers[1].team_name.toUpperCase()})` : 'Lando Norris (MCLAREN)'}</span>
+                <span>
+                  {latestFastestLap 
+                    ? `${latestFastestLap.driver_name} (${latestFastestLap.driver_team.toUpperCase()})` 
+                    : drivers[1] 
+                      ? `${drivers[1].full_name} (${drivers[1].team_name.toUpperCase()})` 
+                      : 'Lando Norris (MCLAREN)'}
+                </span>
                 <span className="font-mono text-purple-400">PURPLE SECTOR</span>
               </div>
             </div>

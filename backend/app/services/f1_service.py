@@ -83,7 +83,62 @@ class F1Service:
         if cached:
             return cached
 
-        constructors = [
+        # Try Ergast/Jolpica API for current constructor standings
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                resp = await client.get(f"{settings.ERGAST_BASE_URL}/current/constructorStandings.json")
+                if resp.status_code == 200:
+                    data = resp.json()
+                    standings = data['MRData']['StandingsTable']['StandingsLists'][0]['ConstructorStandings']
+                    constructors = []
+                    
+                    colors = {
+                        "mclaren": "#FF8000",
+                        "ferrari": "#E80020",
+                        "red_bull": "#3671C6",
+                        "mercedes": "#27F4D2",
+                        "aston_martin": "#229971",
+                        "alpine": "#0093CC",
+                        "haas": "#B6BABD",
+                        "rb": "#6692FF",
+                        "williams": "#64C4FF",
+                        "sauber": "#52E252",
+                        "kick_sauber": "#52E252"
+                    }
+                    
+                    pu_map = {
+                        "mclaren": "Mercedes",
+                        "ferrari": "Ferrari",
+                        "red_bull": "Honda RBPT",
+                        "mercedes": "Mercedes",
+                        "aston_martin": "Mercedes",
+                        "alpine": "Renault",
+                        "haas": "Ferrari",
+                        "rb": "Honda RBPT",
+                        "williams": "Mercedes",
+                        "sauber": "Ferrari",
+                        "kick_sauber": "Ferrari"
+                    }
+
+                    for item in standings:
+                        c = item['Constructor']
+                        cid = c['constructorId']
+                        constructors.append({
+                            "team_id": cid,
+                            "team_name": c['name'],
+                            "color": colors.get(cid, "#B6BABD"),
+                            "points": float(item['points']),
+                            "position": int(item['position']),
+                            "wins": int(item['wins']),
+                            "power_unit": pu_map.get(cid, "Unknown")
+                        })
+                    set_cached(cache_key, constructors)
+                    return constructors
+            except Exception as e:
+                print(f"Constructor standings fetch failed: {e}")
+
+        # Comprehensive Fallback Constructor Standings Data
+        fallback_constructors = [
             {"team_id": "mclaren", "team_name": "McLaren", "color": "#FF8000", "points": 666, "position": 1, "wins": 5, "power_unit": "Mercedes"},
             {"team_id": "ferrari", "team_name": "Ferrari", "color": "#E80020", "points": 652, "position": 2, "wins": 5, "power_unit": "Ferrari"},
             {"team_id": "red_bull", "team_name": "Red Bull Racing", "color": "#3671C6", "points": 589, "position": 3, "wins": 9, "power_unit": "Honda RBPT"},
@@ -95,8 +150,8 @@ class F1Service:
             {"team_id": "williams", "team_name": "Williams", "color": "#64C4FF", "points": 17, "position": 9, "wins": 0, "power_unit": "Mercedes"},
             {"team_id": "sauber", "team_name": "Kick Sauber", "color": "#52E252", "points": 4, "position": 10, "wins": 0, "power_unit": "Ferrari"}
         ]
-        set_cached(cache_key, constructors)
-        return constructors
+        set_cached(cache_key, fallback_constructors)
+        return fallback_constructors
 
     @staticmethod
     async def get_races() -> List[Dict[str, Any]]:
