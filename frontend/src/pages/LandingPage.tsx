@@ -2,19 +2,59 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Gauge, Shield, Trophy, Activity, ArrowRight, Zap, Flame, Compass } from 'lucide-react';
+import { F1API } from '../services/api';
+import { Race } from '../types';
 
 export const LandingPage: React.FC = () => {
-  const [timeLeft, setTimeLeft] = useState({ days: 3, hours: 14, minutes: 22, seconds: 45 });
+  const [nextRace, setNextRace] = useState<Race | null>(null);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        return { ...prev, seconds: 59, minutes: prev.minutes - 1 };
+    F1API.getRaces().then(races => {
+      if (!races || races.length === 0) return;
+      
+      const sortedRaces = [...races].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const now = new Date();
+      const futureRace = sortedRaces.find(race => {
+        const raceDateTime = new Date(`${race.date}T${race.time || '15:00:00Z'}`);
+        return raceDateTime > now;
       });
-    }, 1000);
-    return () => clearInterval(timer);
+
+      if (futureRace) {
+        setNextRace(futureRace);
+      } else {
+        setNextRace(sortedRaces[sortedRaces.length - 1]);
+      }
+    }).catch(err => {
+      console.error("Error fetching next race:", err);
+    });
   }, []);
+
+  useEffect(() => {
+    if (!nextRace) return;
+
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const raceDateTime = new Date(`${nextRace.date}T${nextRace.time || '15:00:00Z'}`);
+      const difference = raceDateTime.getTime() - now.getTime();
+
+      if (difference <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      setTimeLeft({
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60)
+      });
+    };
+
+    calculateTimeLeft();
+    const interval = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(interval);
+  }, [nextRace]);
 
   return (
     <div className="min-h-screen space-y-20 pb-20">
@@ -91,7 +131,9 @@ export const LandingPage: React.FC = () => {
             <div className="max-w-xl mx-auto p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
               <div className="flex items-center justify-between text-xs font-mono text-gray-400">
                 <span className="flex items-center gap-2"><Flame className="w-4 h-4 text-[#E10600]" /> NEXT GRAND PRIX</span>
-                <span className="text-cyan-400 font-bold">SILVERSTONE, UK</span>
+                <span className="text-cyan-400 font-bold">
+                  {nextRace ? `${nextRace.race_name.toUpperCase()}, ${nextRace.country.toUpperCase()}` : 'LOADING...'}
+                </span>
               </div>
               <div className="grid grid-cols-4 gap-4 text-center">
                 {[
