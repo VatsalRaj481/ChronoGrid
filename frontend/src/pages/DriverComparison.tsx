@@ -6,6 +6,7 @@ import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadius
 
 interface DriverHistory {
   titles: number;
+  wins: number;
   podiums: number;
   qualy?: number;
   racecraft?: number;
@@ -14,33 +15,34 @@ interface DriverHistory {
   wet?: number;
 }
 
-// Career stats registry for active drivers to support accurate stats display
+// Career stats registry for active drivers to support accurate stats display (historical career metrics)
 const driverHistoryRegistry: Record<string, DriverHistory> = {
-  verstappen: { titles: 3, podiums: 111, qualy: 98, racecraft: 99, tire: 97, consistency: 98, wet: 99 },
-  hamilton: { titles: 7, podiums: 201, qualy: 96, racecraft: 98, tire: 96, consistency: 95, wet: 99 },
-  norris: { titles: 0, podiums: 26, qualy: 97, racecraft: 94, tire: 94, consistency: 94, wet: 92 },
-  leclerc: { titles: 0, podiums: 42, qualy: 99, racecraft: 95, tire: 92, consistency: 92, wet: 90 },
-  piastri: { titles: 0, podiums: 9, qualy: 95, racecraft: 93, tire: 91, consistency: 94, wet: 89 },
-  sainz: { titles: 0, podiums: 25, qualy: 94, racecraft: 95, tire: 93, consistency: 95, wet: 88 },
-  russell: { titles: 0, podiums: 14, qualy: 96, racecraft: 92, tire: 90, consistency: 91, wet: 93 },
-  perez: { titles: 0, podiums: 39, qualy: 88, racecraft: 92, tire: 94, consistency: 87, wet: 91 },
-  alonso: { titles: 2, podiums: 106, qualy: 92, racecraft: 96, tire: 95, consistency: 95, wet: 94 },
-  stroll: { titles: 0, podiums: 3, qualy: 84, racecraft: 85, tire: 86, consistency: 83, wet: 90 },
-  hulkenberg: { titles: 0, podiums: 0, qualy: 91, racecraft: 86, tire: 85, consistency: 88, wet: 86 },
-  tsunoda: { titles: 0, podiums: 0, qualy: 89, racecraft: 87, tire: 86, consistency: 86, wet: 84 },
-  ricciardo: { titles: 0, podiums: 32, qualy: 86, racecraft: 88, tire: 88, consistency: 85, wet: 85 },
-  gasly: { titles: 0, podiums: 4, qualy: 88, racecraft: 87, tire: 86, consistency: 86, wet: 88 },
-  ocon: { titles: 0, podiums: 3, qualy: 87, racecraft: 86, tire: 85, consistency: 86, wet: 89 },
-  albon: { titles: 0, podiums: 2, qualy: 90, racecraft: 88, tire: 87, consistency: 89, wet: 85 },
-  magnussen: { titles: 0, podiums: 1, qualy: 86, racecraft: 85, tire: 83, consistency: 82, wet: 87 },
-  bottas: { titles: 0, podiums: 67, qualy: 89, racecraft: 83, tire: 85, consistency: 87, wet: 81 },
-  zhou: { titles: 0, podiums: 0, qualy: 81, racecraft: 82, tire: 84, consistency: 84, wet: 80 },
-  sargeant: { titles: 0, podiums: 0, qualy: 80, racecraft: 80, tire: 81, consistency: 79, wet: 78 }
+  max_verstappen: { titles: 3, wins: 62, podiums: 111, qualy: 98, racecraft: 99, tire: 97, consistency: 98, wet: 99 },
+  verstappen: { titles: 3, wins: 62, podiums: 111, qualy: 98, racecraft: 99, tire: 97, consistency: 98, wet: 99 },
+  hamilton: { titles: 7, wins: 105, podiums: 201, qualy: 96, racecraft: 98, tire: 96, consistency: 95, wet: 99 },
+  norris: { titles: 0, wins: 4, podiums: 26, qualy: 97, racecraft: 94, tire: 94, consistency: 94, wet: 92 },
+  leclerc: { titles: 0, wins: 8, podiums: 42, qualy: 99, racecraft: 95, tire: 92, consistency: 92, wet: 90 },
+  piastri: { titles: 0, wins: 2, podiums: 9, qualy: 95, racecraft: 93, tire: 91, consistency: 94, wet: 89 },
+  sainz: { titles: 0, wins: 4, podiums: 25, qualy: 94, racecraft: 95, tire: 93, consistency: 95, wet: 88 },
+  russell: { titles: 0, wins: 3, podiums: 14, qualy: 96, racecraft: 92, tire: 90, consistency: 91, wet: 93 },
+  perez: { titles: 0, wins: 6, podiums: 39, qualy: 88, racecraft: 92, tire: 94, consistency: 87, wet: 91 },
+  alonso: { titles: 2, wins: 32, podiums: 106, qualy: 92, racecraft: 96, tire: 95, consistency: 95, wet: 94 },
+  stroll: { titles: 0, wins: 0, podiums: 3, qualy: 84, racecraft: 85, tire: 86, consistency: 83, wet: 90 },
+  hulkenberg: { titles: 0, wins: 0, podiums: 0, qualy: 91, racecraft: 86, tire: 85, consistency: 88, wet: 86 },
+  tsunoda: { titles: 0, wins: 0, podiums: 0, qualy: 89, racecraft: 87, tire: 86, consistency: 86, wet: 84 },
+  ricciardo: { titles: 0, wins: 8, podiums: 32, qualy: 86, racecraft: 88, tire: 88, consistency: 85, wet: 85 },
+  gasly: { titles: 0, wins: 1, podiums: 4, qualy: 88, racecraft: 87, tire: 86, consistency: 86, wet: 88 },
+  ocon: { titles: 0, wins: 1, podiums: 3, qualy: 87, racecraft: 86, tire: 85, consistency: 86, wet: 89 },
+  albon: { titles: 0, wins: 0, podiums: 2, qualy: 90, racecraft: 88, tire: 87, consistency: 89, wet: 85 },
+  magnussen: { titles: 0, wins: 0, podiums: 1, qualy: 86, racecraft: 85, tire: 83, consistency: 82, wet: 87 },
+  bottas: { titles: 0, wins: 10, podiums: 67, qualy: 89, racecraft: 83, tire: 85, consistency: 87, wet: 81 },
+  zhou: { titles: 0, wins: 0, podiums: 0, qualy: 81, racecraft: 82, tire: 84, consistency: 84, wet: 80 },
+  sargeant: { titles: 0, wins: 0, podiums: 0, qualy: 80, racecraft: 80, tire: 81, consistency: 79, wet: 78 }
 };
 
 export const DriverComparison: React.FC = () => {
-  const [driverAId, setDriverAId] = useState('verstappen');
-  const [driverBId, setDriverBId] = useState('hamilton');
+  const [driverAId, setDriverAId] = useState('hamilton');
+  const [driverBId, setDriverBId] = useState('max_verstappen');
   const [activeDrivers, setActiveDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,8 +51,11 @@ export const DriverComparison: React.FC = () => {
       .then(data => {
         setActiveDrivers(data);
         if (data.length > 0) {
-          setDriverAId(data[0].driver_id);
-          setDriverBId(data[1] ? data[1].driver_id : data[0].driver_id);
+          // Keep defaults if they exist in active drivers, otherwise set first two
+          const hasHamilton = data.some(d => d.driver_id === 'hamilton');
+          const hasVerstappen = data.some(d => d.driver_id === 'max_verstappen');
+          if (!hasHamilton) setDriverAId(data[0].driver_id);
+          if (!hasVerstappen) setDriverBId(data[1] ? data[1].driver_id : data[0].driver_id);
         }
       })
       .catch(err => {
@@ -63,7 +68,7 @@ export const DriverComparison: React.FC = () => {
 
   const getEnrichedDriver = (d: Driver) => {
     const key = d.driver_id.toLowerCase();
-    const history = driverHistoryRegistry[key] || { titles: 0, podiums: 0 };
+    const history = driverHistoryRegistry[key] || { titles: 0, wins: 0, podiums: 0 };
     
     // Normalize relative stats generation for fallback grid entries based on standing points
     const maxPoints = Math.max(...activeDrivers.map(drv => drv.points), 100);
@@ -75,8 +80,9 @@ export const DriverComparison: React.FC = () => {
       code: d.code,
       team: d.team_name,
       points: d.points,
-      wins: d.wins,
+      seasonWins: d.wins,
       titles: history.titles,
+      wins: history.wins,
       podiums: history.podiums,
       headshot: d.headshot_url || 'https://media.formula1.com/d_default_fallback_image.png',
       radar: {
