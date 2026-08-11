@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Gauge, GitCompare, Trophy, Flag, Cpu, Search, User, Zap, Award } from 'lucide-react';
+import { Activity, Gauge, GitCompare, Trophy, Flag, Cpu, User, Zap, Award } from 'lucide-react';
 import { F1API } from '../../services/api';
 import { Race } from '../../types';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
-  const [searchOpen, setSearchOpen] = useState(false);
   const [nextRace, setNextRace] = useState<Race | null>(null);
 
   useEffect(() => {
@@ -96,14 +95,6 @@ export const Navbar: React.FC = () => {
 
         {/* Action Controls */}
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setSearchOpen(!searchOpen)}
-            className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-            title="Global Search"
-          >
-            <Search className="w-4 h-4" />
-          </button>
-
           <Link
             to="/dashboard"
             className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#E10600] to-[#B30500] text-white text-xs font-semibold hover:shadow-lg hover:shadow-red-600/40 transition-all active:scale-95"

@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { F1API } from '../services/api';
 import { Driver, Constructor, Race } from '../types';
 import { Trophy, Activity, CloudRain, Shield, Flag, ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [constructors, setConstructors] = useState<Constructor[]>([]);
   const [races, setRaces] = useState<Race[]>([]);
@@ -67,6 +68,8 @@ export const Dashboard: React.FC = () => {
       </div>
     );
   }
+
+  const now = new Date();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
@@ -208,15 +211,46 @@ export const Dashboard: React.FC = () => {
               <Flag className="w-5 h-5 text-[#E10600]" /> Race Calendar (2026)
             </h2>
             <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
-              {races.map((race) => (
-                <div key={race.round} className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between text-xs">
-                  <div>
-                    <div className="font-bold text-white">{race.race_name}</div>
-                    <div className="text-[10px] text-gray-400">{race.locality}, {race.country}</div>
+              {races.map((race) => {
+                const raceDateTime = new Date(`${race.date}T${race.time || '15:00:00Z'}`);
+                const hasHappened = raceDateTime < now;
+
+                return (
+                  <div 
+                    key={race.round} 
+                    onClick={() => {
+                      if (hasHappened) {
+                        navigate(`/race-analysis?round=${race.round}`);
+                      }
+                    }}
+                    className={`p-3 rounded-xl border flex items-center justify-between text-xs transition-all ${
+                      hasHappened 
+                        ? 'bg-white/5 border-white/5 cursor-pointer hover:bg-[#E10600]/10 hover:border-[#E10600]/30 hover:scale-[1.01] active:scale-[0.99] group' 
+                        : 'bg-white/5 border-white/5 opacity-60'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        {race.race_name}
+                        {hasHappened && (
+                          <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            COMPLETED
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-gray-400">{race.locality}, {race.country}</div>
+                    </div>
+                    <div className="font-mono text-cyan-400 text-[11px] flex flex-col items-end gap-1">
+                      <div>{race.date}</div>
+                      {hasHappened && (
+                        <div className="text-[9px] text-[#E10600] font-bold group-hover:underline flex items-center gap-0.5">
+                          Analyze <ArrowUpRight className="w-3 h-3" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="font-mono text-cyan-400 text-[11px]">{race.date}</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

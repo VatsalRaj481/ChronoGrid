@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Flag, Trophy, ShieldAlert, Zap, Clock, Calendar } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Race, Driver } from '../types';
+import { useSearchParams } from 'react-router-dom';
 
 interface Stint {
   compound: 'SOFT' | 'MEDIUM' | 'HARD' | 'INTERMEDIATE' | 'WET';
@@ -29,6 +30,7 @@ interface RaceResultsData {
 }
 
 export const RaceAnalysis: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [races, setRaces] = useState<Race[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [selectedRound, setSelectedRound] = useState<number>(1);
@@ -47,7 +49,11 @@ export const RaceAnalysis: React.FC = () => {
         ]);
         setRaces(rData);
         setDrivers(dData);
-        if (rData.length > 0) {
+        
+        const roundParam = searchParams.get('round');
+        if (roundParam) {
+          setSelectedRound(Number(roundParam));
+        } else if (rData.length > 0) {
           setSelectedRound(rData[0].round);
         }
       } catch (err) {
@@ -58,6 +64,14 @@ export const RaceAnalysis: React.FC = () => {
     };
     loadData();
   }, []);
+
+  // Update selectedRound when searchParams changes (e.g. navigation from dashboard)
+  useEffect(() => {
+    const roundParam = searchParams.get('round');
+    if (roundParam) {
+      setSelectedRound(Number(roundParam));
+    }
+  }, [searchParams]);
 
   // Fetch results dynamically from backend API whenever round selection updates
   useEffect(() => {
@@ -111,7 +125,11 @@ export const RaceAnalysis: React.FC = () => {
             <span className="text-xs font-mono text-gray-400">SELECT RACE:</span>
             <select 
               value={selectedRound}
-              onChange={(e) => setSelectedRound(Number(e.target.value))}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setSelectedRound(val);
+                setSearchParams({ round: String(val) });
+              }}
               className="px-4 py-2 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#E10600] transition-colors"
             >
               {races.map(race => (
@@ -173,7 +191,11 @@ export const RaceAnalysis: React.FC = () => {
           <span className="text-xs font-mono text-gray-400">SELECT RACE:</span>
           <select 
             value={selectedRound}
-            onChange={(e) => setSelectedRound(Number(e.target.value))}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              setSelectedRound(val);
+              setSearchParams({ round: String(val) });
+            }}
             className="px-4 py-2 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#E10600] transition-colors"
           >
             {races.map(race => (
