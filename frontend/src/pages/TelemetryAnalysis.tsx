@@ -111,9 +111,9 @@ export const TelemetryAnalysis: React.FC = () => {
     const ptB = telemetryB[idx] || ptA;
     const angle = (idx / telemetryA.length) * 2 * Math.PI;
     
-    // Perpendicular vector for visual separation of driving lines
-    const perpX = Math.cos(angle + Math.PI / 2);
-    const perpY = Math.sin(angle + Math.PI / 2);
+    // Radial normal vector (outwards/inwards perpendicular to track direction)
+    const normX = Math.cos(angle);
+    const normY = Math.sin(angle);
     
     const spread = 5; // 5-pixel separation width to show comparison side-by-side
 
@@ -148,11 +148,11 @@ export const TelemetryAnalysis: React.FC = () => {
       gearB: ptB.gear,
       centerlineX: ptA.x,
       centerlineY: ptA.y,
-      xA: ptA.x + perpX * spread,
-      yA: ptA.y + perpY * spread,
+      xA: ptA.x + normX * spread,
+      yA: ptA.y + normY * spread,
       // Render B using its time-synchronized index to show true time gap relative positions on track!
-      xB: ptBTimeSync.x - perpX * spread,
-      yB: ptBTimeSync.y - perpY * spread,
+      xB: ptBTimeSync.x - normX * spread,
+      yB: ptBTimeSync.y - normY * spread,
       timeDelta: timeDelta
     };
   });
