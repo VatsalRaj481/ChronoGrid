@@ -217,10 +217,30 @@ class F1Service:
         # Add driver-specific speed difference (championship leaders are slightly faster)
         driver_offsets = {
             "VER": 2.5, "NOR": 2.2, "LEC": 2.0, "PIA": 1.5,
-            "SAI": 1.3, "RUS": 1.2, "HAM": 1.0, "PER": 0.5
+            "SAI": 1.3, "RUS": 1.2, "HAM": 1.0, "PER": 0.5, "ANT": 1.1
         }
         driver_offset = driver_offsets.get(driver_code, -1.0)
         max_speed += driver_offset
+        
+        # Apply round-specific finishing position pace offsets from the results database
+        result_offset = 0.0
+        try:
+            results = await F1Service.get_race_results(round_num)
+            if results:
+                w_code = results.get("winner", {}).get("code")
+                s_code = results.get("second", {}).get("code")
+                t_code = results.get("third", {}).get("code")
+                
+                if driver_code == w_code:
+                    result_offset = 3.5
+                elif driver_code == s_code:
+                    result_offset = 2.0
+                elif driver_code == t_code:
+                    result_offset = 1.0
+        except Exception as results_err:
+            print(f"Error adjusting telemetry speeds from race results: {results_err}")
+            
+        max_speed += result_offset
         
         # Define driver-specific styles to create visual separation on overlays (throttle profiles/braking indexes)
         driver_style = {
