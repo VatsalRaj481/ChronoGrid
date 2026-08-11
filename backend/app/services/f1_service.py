@@ -622,5 +622,91 @@ class F1Service:
         }
         return fallback_results.get(round_num, fallback_results[3])
 
+    @staticmethod
+    async def get_driver_career_stats(driver_id: str) -> Dict[str, Any]:
+        cache_key = f"career_stats_{driver_id}"
+        cached = get_cached(cache_key)
+        if cached:
+            return cached
+
+        # Map frontend driver ID key to Jolpica API format
+        api_driver_id = driver_id
+        if driver_id == "verstappen":
+            api_driver_id = "max_verstappen"
+
+        # Define high-fidelity fallback statistics in case Jolpica API is down or rate-limited
+        fallbacks = {
+            "max_verstappen": {"titles": 4, "wins": 71, "podiums": 131},
+            "verstappen": {"titles": 4, "wins": 71, "podiums": 131},
+            "hamilton": {"titles": 7, "wins": 105, "podiums": 206},
+            "norris": {"titles": 1, "wins": 4, "podiums": 26},
+            "leclerc": {"titles": 0, "wins": 7, "podiums": 41},
+            "piastri": {"titles": 0, "wins": 2, "podiums": 9},
+            "sainz": {"titles": 0, "wins": 4, "podiums": 25},
+            "russell": {"titles": 0, "wins": 5, "podiums": 16},
+            "perez": {"titles": 0, "wins": 6, "podiums": 39},
+            "alonso": {"titles": 2, "wins": 32, "podiums": 106},
+            "stroll": {"titles": 0, "wins": 0, "podiums": 3},
+            "hulkenberg": {"titles": 0, "wins": 0, "podiums": 0},
+            "tsunoda": {"titles": 0, "wins": 0, "podiums": 0},
+            "ricciardo": {"titles": 0, "wins": 8, "podiums": 32},
+            "gasly": {"titles": 0, "wins": 1, "podiums": 4},
+            "ocon": {"titles": 0, "wins": 1, "podiums": 3},
+            "albon": {"titles": 0, "wins": 0, "podiums": 2},
+            "magnussen": {"titles": 0, "wins": 0, "podiums": 1},
+            "bottas": {"titles": 0, "wins": 10, "podiums": 67},
+            "zhou": {"titles": 0, "wins": 0, "podiums": 0},
+            "sargeant": {"titles": 0, "wins": 0, "podiums": 0}
+        }
+
+        titles = 0
+        wins = 0
+        podiums = 0
+
+        async with httpx.AsyncClient(timeout=6.0) as client:
+            try:
+                # 1. Championships count (DriverStandings equal to 1st)
+                resp_standings = await client.get(f"{settings.ERGAST_BASE_URL}/drivers/{api_driver_id}/driverStandings/1.json?limit=1")
+                if resp_standings.status_code == 200:
+                    titles = int(resp_standings.json()['MRData'].get('total', 0))
+                else:
+                    titles = fallbacks.get(api_driver_id, {}).get("titles", 0)
+
+                # 2. Wins count (Results finishing 1st)
+                resp_wins = await client.get(f"{settings.ERGAST_BASE_URL}/drivers/{api_driver_id}/results/1.json?limit=1")
+                if resp_wins.status_code == 200:
+                    wins = int(resp_wins.json()['MRData'].get('total', 0))
+                else:
+                    wins = fallbacks.get(api_driver_id, {}).get("wins", 0)
+
+                # 3. Podiums count (Wins + P2 + P3)
+                p2 = 0
+                p3 = 0
+                resp_p2 = await client.get(f"{settings.ERGAST_BASE_URL}/drivers/{api_driver_id}/results/2.json?limit=1")
+                if resp_p2.status_code == 200:
+                    p2 = int(resp_p2.json()['MRData'].get('total', 0))
+                resp_p3 = await client.get(f"{settings.ERGAST_BASE_URL}/drivers/{api_driver_id}/results/3.json?limit=1")
+                if resp_p3.status_code == 200:
+                    p3 = int(resp_p3.json()['MRData'].get('total', 0))
+                
+                podiums = wins + p2 + p3
+                if resp_p2.status_code != 200 or resp_p3.status_code != 200:
+                    podiums = fallbacks.get(api_driver_id, {}).get("podiums", 0)
+
+            except Exception as e:
+                print(f"Jolpica career stats fetch failed for {driver_id}: {e}")
+                fb = fallbacks.get(api_driver_id, {"titles": 0, "wins": 0, "podiums": 0})
+                titles = fb["titles"]
+                wins = fb["wins"]
+                podiums = fb["podiums"]
+
+        result = {
+            "titles": titles,
+            "wins": wins,
+            "podiums": podiums
+        }
+        set_cached(cache_key, result)
+        return result
+
 
 

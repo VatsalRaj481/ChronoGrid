@@ -32,3 +32,8 @@ async def get_driver_detail(driver_id: str):
                 }
             }
     raise HTTPException(status_code=404, detail="Driver not found")
+
+@router.get("/{driver_id}/career", response_model=Dict[str, Any])
+async def get_driver_career(driver_id: str):
+    """Retrieve detailed historical career metrics (championships, wins, podiums) dynamically from Jolpica."""
+    return await F1Service.get_driver_career_stats(driver_id)
