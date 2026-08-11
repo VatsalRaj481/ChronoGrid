@@ -15,16 +15,16 @@ interface DriverHistory {
   wet?: number;
 }
 
-// Career stats registry for active drivers to support accurate stats display (historical career metrics)
+// Career stats registry for active drivers to support accurate stats display (historical career metrics as of start of 2026)
 const driverHistoryRegistry: Record<string, DriverHistory> = {
-  max_verstappen: { titles: 3, wins: 62, podiums: 111, qualy: 98, racecraft: 99, tire: 97, consistency: 98, wet: 99 },
-  verstappen: { titles: 3, wins: 62, podiums: 111, qualy: 98, racecraft: 99, tire: 97, consistency: 98, wet: 99 },
-  hamilton: { titles: 7, wins: 105, podiums: 201, qualy: 96, racecraft: 98, tire: 96, consistency: 95, wet: 99 },
-  norris: { titles: 0, wins: 4, podiums: 26, qualy: 97, racecraft: 94, tire: 94, consistency: 94, wet: 92 },
-  leclerc: { titles: 0, wins: 8, podiums: 42, qualy: 99, racecraft: 95, tire: 92, consistency: 92, wet: 90 },
+  max_verstappen: { titles: 4, wins: 71, podiums: 131, qualy: 98, racecraft: 99, tire: 97, consistency: 98, wet: 99 },
+  verstappen: { titles: 4, wins: 71, podiums: 131, qualy: 98, racecraft: 99, tire: 97, consistency: 98, wet: 99 },
+  hamilton: { titles: 7, wins: 105, podiums: 206, qualy: 96, racecraft: 98, tire: 96, consistency: 95, wet: 99 },
+  norris: { titles: 1, wins: 4, podiums: 26, qualy: 97, racecraft: 94, tire: 94, consistency: 94, wet: 92 },
+  leclerc: { titles: 0, wins: 7, podiums: 41, qualy: 99, racecraft: 95, tire: 92, consistency: 92, wet: 90 },
   piastri: { titles: 0, wins: 2, podiums: 9, qualy: 95, racecraft: 93, tire: 91, consistency: 94, wet: 89 },
   sainz: { titles: 0, wins: 4, podiums: 25, qualy: 94, racecraft: 95, tire: 93, consistency: 95, wet: 88 },
-  russell: { titles: 0, wins: 3, podiums: 14, qualy: 96, racecraft: 92, tire: 90, consistency: 91, wet: 93 },
+  russell: { titles: 0, wins: 5, podiums: 16, qualy: 96, racecraft: 92, tire: 90, consistency: 91, wet: 93 },
   perez: { titles: 0, wins: 6, podiums: 39, qualy: 88, racecraft: 92, tire: 94, consistency: 87, wet: 91 },
   alonso: { titles: 2, wins: 32, podiums: 106, qualy: 92, racecraft: 96, tire: 95, consistency: 95, wet: 94 },
   stroll: { titles: 0, wins: 0, podiums: 3, qualy: 84, racecraft: 85, tire: 86, consistency: 83, wet: 90 },
@@ -82,8 +82,8 @@ export const DriverComparison: React.FC = () => {
       points: d.points,
       seasonWins: d.wins,
       titles: history.titles,
-      wins: history.wins,
-      podiums: history.podiums,
+      wins: history.wins + d.wins, // Combine pre-2026 career wins with current 2026 season wins
+      podiums: history.podiums + d.wins, // wins are podiums, add them to career totals
       headshot: d.headshot_url || 'https://media.formula1.com/d_default_fallback_image.png',
       radar: {
         qualy: history.qualy || Math.round(78 + ratio * 20),

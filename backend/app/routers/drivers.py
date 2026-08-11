@@ -18,8 +18,8 @@ async def get_driver_detail(driver_id: str):
             # Add detailed profile extensions
             return {
                 **d,
-                "championships": 3 if d['code'] == 'VER' else (7 if d['code'] == 'HAM' else 0),
-                "podiums": 111 if d['code'] == 'VER' else (201 if d['code'] == 'HAM' else 38),
+                "championships": 4 if d['code'] == 'VER' else (7 if d['code'] == 'HAM' else (1 if d['code'] == 'NOR' else 0)),
+                "podiums": 131 if d['code'] == 'VER' else (207 if d['code'] == 'HAM' else (18 if d['code'] == 'RUS' else 38)),
                 "pole_positions": 40 if d['code'] == 'VER' else (104 if d['code'] == 'HAM' else 26),
                 "fastest_laps": 33 if d['code'] == 'VER' else (67 if d['code'] == 'HAM' else 10),
                 "career_points": 3014.5 if d['code'] == 'VER' else 4829.5,
