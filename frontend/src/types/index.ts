@@ -67,4 +67,5 @@ export interface Champion {
   constructor_name: string;
   points: number;
   wins: number;
+  photo_url?: string;
 }

@@ -137,14 +137,33 @@ export const Champions: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Driver & Country */}
-                      <div className="space-y-1">
-                        <h4 className="text-lg font-black text-white group-hover:text-[#E10600] transition-colors flex items-center gap-1.5">
-                          <User className="w-4 h-4 text-gray-500 group-hover:text-[#E10600] transition-colors" /> {c.driver_name}
-                        </h4>
-                        <p className="text-xs text-gray-400 font-mono flex items-center gap-1.5">
-                          🌍 {c.nationality}
-                        </p>
+                      {/* Photo & Driver Info Row */}
+                      <div className="flex items-center gap-4">
+                        <div className={`w-14 h-14 rounded-full overflow-hidden shrink-0 border bg-black/40 flex items-center justify-center ${
+                          isMultiChampion ? 'border-[#FFB800]/30 group-hover:border-[#FFB800]/60' : 'border-white/10 group-hover:border-white/20'
+                        } transition-colors`}>
+                          {c.photo_url ? (
+                            <img 
+                              src={c.photo_url} 
+                              alt={c.driver_name} 
+                              className="w-full h-full object-cover object-top scale-110 group-hover:scale-125 transition-all duration-300"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <User className="w-6 h-6 text-gray-500 group-hover:text-[#E10600] transition-colors" />
+                          )}
+                        </div>
+
+                        <div className="space-y-1">
+                          <h4 className="text-base font-black text-white group-hover:text-[#E10600] transition-colors line-clamp-1">
+                            {c.driver_name}
+                          </h4>
+                          <p className="text-xs text-gray-400 font-mono flex items-center gap-1">
+                            🌍 {c.nationality}
+                          </p>
+                        </div>
                       </div>
 
                       {/* Constructor */}
