@@ -18,3 +18,8 @@ async def get_circuits():
         {"circuit_id": "spa", "name": "Circuit de Spa-Francorchamps", "country": "Belgium", "length": "7.004 km", "laps": 44, "drs_zones": 2, "record": "1:46.286 (Valtteri Bottas, 2018)"},
         {"circuit_id": "monza", "name": "Autodromo Nazionale Monza", "country": "Italy", "length": "5.793 km", "laps": 53, "drs_zones": 2, "record": "1:21.046 (Rubens Barrichello, 2004)"}
     ]
+
+@router.get("/{round_num}/results", response_model=Dict[str, Any])
+async def get_race_results(round_num: int):
+    """Retrieve results and strategy timeline for a specific round of the 2026 season."""
+    return await F1Service.get_race_results(round_num=round_num)
