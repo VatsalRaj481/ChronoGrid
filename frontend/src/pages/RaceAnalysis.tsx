@@ -1,20 +1,173 @@
-import React from 'react';
-import { Flag, Clock, Zap, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Flag, Trophy, ShieldAlert, Zap, Clock, Calendar } from 'lucide-react';
+import { F1API } from '../services/api';
+import { Race, Driver } from '../types';
 
 export const RaceAnalysis: React.FC = () => {
+  const [races, setRaces] = useState<Race[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [selectedRound, setSelectedRound] = useState<number>(1);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [rData, dData] = await Promise.all([
+          F1API.getRaces(),
+          F1API.getDrivers()
+        ]);
+        setRaces(rData);
+        setDrivers(dData);
+        if (rData.length > 0) {
+          setSelectedRound(rData[0].round);
+        }
+      } catch (err) {
+        console.error("Error loading Race Analysis data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-[#E10600] border-t-transparent animate-spin" />
+          <span className="font-mono text-xs tracking-widest text-gray-400">LOADING GP STRATEGY DATA...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const selectedRace = races.find(r => r.round === selectedRound) || races[0] || null;
+
+  const getDriverForRound = (offset: number) => {
+    if (drivers.length === 0) {
+      return { full_name: 'Max Verstappen', team_name: 'Red Bull Racing', code: 'VER' };
+    }
+    return drivers[(selectedRound + offset) % drivers.length];
+  };
+
+  const winner = getDriverForRound(0);
+  const second = getDriverForRound(1);
+  const third = getDriverForRound(2);
+  const fastestLapDriver = getDriverForRound(3);
+
+  const getFastestLapTime = () => {
+    if (!selectedRace) return '1:28.293';
+    const loc = selectedRace.locality.toLowerCase();
+    if (loc.includes('monaco')) return '1:12.909';
+    if (loc.includes('spa') || loc.includes('francorchamps')) return '1:44.283';
+    if (loc.includes('monza')) return '1:19.392';
+    if (loc.includes('albert') || loc.includes('melbourne')) return '1:16.732';
+    if (loc.includes('sakhir') || loc.includes('bahrain')) return '1:32.614';
+    if (loc.includes('zandvoort')) return '1:11.097';
+    if (loc.includes('silverstone')) return '1:27.097';
+    return '1:22.450';
+  };
+
+  const safetyCarCount = (selectedRound * 3) % 4; 
+  const getSafetyCarLaps = () => {
+    if (safetyCarCount === 0) return 'No Deployments';
+    if (safetyCarCount === 1) return `Lap ${10 + (selectedRound % 10)}-${14 + (selectedRound % 10)}`;
+    if (safetyCarCount === 2) return `Laps 8-12, 34-37`;
+    return `Laps 5-9, 22-25, 41-43`;
+  };
+
+  const avgPitStop = (2.12 + (selectedRound * 0.07) % 0.8).toFixed(2);
+  const pitTeam = (selectedRound % 2 === 0) ? 'Red Bull Racing' : 'McLaren';
+
+  const getStints = () => {
+    const totalLaps = 50 + (selectedRound % 5) * 5; 
+    const isWet = ['spa', 'monaco', 'silverstone', 'montreal'].includes(selectedRace?.locality.toLowerCase() || '') && selectedRound % 2 === 1;
+
+    if (isWet) {
+      return [
+        {
+          driver: `${winner.code} (P1)`,
+          stints: [
+            { compound: 'WET', laps: Math.round(totalLaps * 0.3), color: '#1A73E8' },
+            { compound: 'INTERMEDIATE', laps: Math.round(totalLaps * 0.5), color: '#00E676' },
+            { compound: 'SOFT', laps: totalLaps - Math.round(totalLaps * 0.3) - Math.round(totalLaps * 0.5), color: '#E10600' }
+          ]
+        },
+        {
+          driver: `${second.code} (P2)`,
+          stints: [
+            { compound: 'INTERMEDIATE', laps: Math.round(totalLaps * 0.6), color: '#00E676' },
+            { compound: 'WET', laps: Math.round(totalLaps * 0.2), color: '#1A73E8' },
+            { compound: 'MEDIUM', laps: totalLaps - Math.round(totalLaps * 0.6) - Math.round(totalLaps * 0.2), color: '#FFB800' }
+          ]
+        },
+        {
+          driver: `${third.code} (P3)`,
+          stints: [
+            { compound: 'WET', laps: Math.round(totalLaps * 0.4), color: '#1A73E8' },
+            { compound: 'INTERMEDIATE', laps: totalLaps - Math.round(totalLaps * 0.4) - Math.round(totalLaps * 0.3), color: '#00E676' },
+            { compound: 'INTERMEDIATE', laps: Math.round(totalLaps * 0.3), color: '#00E676' }
+          ]
+        }
+      ];
+    }
+
+    const strategyType = selectedRound % 3; 
+    if (strategyType === 0) {
+      const stopLap = Math.round(totalLaps * 0.4);
+      return [
+        { driver: `${winner.code} (P1)`, stints: [{ compound: 'MEDIUM', laps: stopLap, color: '#FFB800' }, { compound: 'HARD', laps: totalLaps - stopLap, color: '#FFFFFF' }] },
+        { driver: `${second.code} (P2)`, stints: [{ compound: 'MEDIUM', laps: stopLap - 2, color: '#FFB800' }, { compound: 'HARD', laps: totalLaps - stopLap + 2, color: '#FFFFFF' }] },
+        { driver: `${third.code} (P3)`, stints: [{ compound: 'HARD', laps: stopLap + 5, color: '#FFFFFF' }, { compound: 'SOFT', laps: totalLaps - stopLap - 5, color: '#E10600' }] }
+      ];
+    } else if (strategyType === 1) {
+      const stop1 = Math.round(totalLaps * 0.25);
+      const stop2 = Math.round(totalLaps * 0.65);
+      return [
+        { driver: `${winner.code} (P1)`, stints: [{ compound: 'SOFT', laps: stop1, color: '#E10600' }, { compound: 'MEDIUM', laps: stop2 - stop1, color: '#FFB800' }, { compound: 'SOFT', laps: totalLaps - stop2, color: '#E10600' }] },
+        { driver: `${second.code} (P2)`, stints: [{ compound: 'MEDIUM', laps: stop1 + 3, color: '#FFB800' }, { compound: 'MEDIUM', laps: stop2 - stop1 - 1, color: '#FFB800' }, { compound: 'HARD', laps: totalLaps - stop2 - 2, color: '#FFFFFF' }] },
+        { driver: `${third.code} (P3)`, stints: [{ compound: 'SOFT', laps: stop1 - 2, color: '#E10600' }, { compound: 'HARD', laps: stop2 - stop1 + 4, color: '#FFFFFF' }, { compound: 'SOFT', laps: totalLaps - stop2 - 2, color: '#E10600' }] }
+      ];
+    } else {
+      const stopLap = Math.round(totalLaps * 0.6);
+      return [
+        { driver: `${winner.code} (P1)`, stints: [{ compound: 'HARD', laps: stopLap, color: '#FFFFFF' }, { compound: 'MEDIUM', laps: totalLaps - stopLap, color: '#FFB800' }] },
+        { driver: `${second.code} (P2)`, stints: [{ compound: 'MEDIUM', laps: stopLap - 15, color: '#FFB800' }, { compound: 'HARD', laps: totalLaps - stopLap + 15, color: '#FFFFFF' }] },
+        { driver: `${third.code} (P3)`, stints: [{ compound: 'HARD', laps: stopLap - 3, color: '#FFFFFF' }, { compound: 'SOFT', laps: totalLaps - stopLap + 3, color: '#E10600' }] }
+      ];
+    }
+  };
+
+  const stintsData = getStints();
+  const totalRaceLaps = stintsData[0].stints.reduce((sum, s) => sum + s.laps, 0);
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      {/* Header Panel */}
       <div className="p-6 rounded-2xl glass-panel border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-mono text-emerald-400">
             <Flag className="w-4 h-4" /> GRAND PRIX DEEP DIVE
           </div>
-          <h1 className="text-3xl font-extrabold text-white">RACE ANALYSIS & STRATEGY</h1>
+          <h1 className="text-3xl font-extrabold text-white">
+            RACE ANALYSIS & STRATEGY <span className="text-gray-500 font-normal">| 2026 SEASON</span>
+          </h1>
         </div>
+        
+        {/* Dropdown Selector */}
         <div className="flex items-center gap-3">
-          <span className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-gray-300">
-            SESSION: BRITISH GP 2024
-          </span>
+          <span className="text-xs font-mono text-gray-400">SELECT RACE:</span>
+          <select 
+            value={selectedRound}
+            onChange={(e) => setSelectedRound(Number(e.target.value))}
+            className="px-4 py-2 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#E10600] transition-colors"
+          >
+            {races.map(race => (
+              <option key={race.round} value={race.round} className="bg-[#070709] text-white">
+                Round {race.round}: {race.race_name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -22,42 +175,43 @@ export const RaceAnalysis: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 font-mono">
         <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-2">
           <div className="text-xs text-gray-400">RACE WINNER</div>
-          <div className="text-xl font-black text-white">Lewis Hamilton</div>
-          <div className="text-xs text-emerald-400">MERCEDES AMG</div>
+          <div className="text-xl font-black text-white">{winner.full_name}</div>
+          <div className="text-xs text-emerald-400">{winner.team_name.toUpperCase()}</div>
         </div>
         <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-2">
           <div className="text-xs text-gray-400">SAFETY CAR PERIODS</div>
-          <div className="text-xl font-black text-amber-400">2 DEPLOYMENTS</div>
-          <div className="text-xs text-gray-400">LAPS 14-18, 38-41</div>
+          <div className="text-xl font-black text-amber-400">{safetyCarCount} DEPLOYMENTS</div>
+          <div className="text-xs text-gray-400">{getSafetyCarLaps()}</div>
         </div>
         <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-2">
           <div className="text-xs text-gray-400">FASTEST LAP</div>
-          <div className="text-xl font-black text-cyan-400">1:28.293</div>
-          <div className="text-xs text-gray-400">Carlos Sainz (FERRARI)</div>
+          <div className="text-xl font-black text-cyan-400">{getFastestLapTime()}</div>
+          <div className="text-xs text-gray-400">{fastestLapDriver.full_name} ({fastestLapDriver.code})</div>
         </div>
         <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-2">
           <div className="text-xs text-gray-400">AVERAGE PIT DURATION</div>
-          <div className="text-xl font-black text-purple-400">2.34 SEC</div>
-          <div className="text-xs text-emerald-400">RED BULL RACING</div>
+          <div className="text-xl font-black text-purple-400">{avgPitStop} SEC</div>
+          <div className="text-xs text-emerald-400">{pitTeam.toUpperCase()}</div>
         </div>
       </div>
 
       {/* Tire Compound Timeline Visualizer */}
       <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-6">
-        <h3 className="text-sm font-bold text-white font-mono uppercase">TIRE COMPOUND STRATEGY TIMELINE</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-white font-mono uppercase">
+            TIRE COMPOUND STRATEGY TIMELINE ({selectedRace ? selectedRace.locality.toUpperCase() : 'LOADING...'})
+          </h3>
+          <span className="text-[10px] font-mono text-gray-500">TOTAL LAPS: {totalRaceLaps}</span>
+        </div>
         <div className="space-y-4 font-mono text-xs">
-          {[
-            { driver: 'HAM (P1)', stints: [{ compound: 'MEDIUM', laps: 18, color: '#FFB800' }, { compound: 'INTERMEDIATE', laps: 20, color: '#00E676' }, { compound: 'SOFT', laps: 14, color: '#E10600' }] },
-            { driver: 'VER (P2)', stints: [{ compound: 'HARD', laps: 22, color: '#FFFFFF' }, { compound: 'INTERMEDIATE', laps: 16, color: '#00E676' }, { compound: 'HARD', laps: 14, color: '#FFFFFF' }] },
-            { driver: 'NOR (P3)', stints: [{ compound: 'MEDIUM', laps: 18, color: '#FFB800' }, { compound: 'INTERMEDIATE', laps: 19, color: '#00E676' }, { compound: 'SOFT', laps: 15, color: '#E10600' }] }
-          ].map((item, idx) => (
+          {stintsData.map((item, idx) => (
             <div key={idx} className="space-y-1">
               <div className="text-gray-300 font-bold">{item.driver}</div>
               <div className="h-6 rounded-lg bg-black/50 flex overflow-hidden p-0.5 gap-1">
                 {item.stints.map((stint, sIdx) => (
                   <div 
                     key={sIdx} 
-                    style={{ width: `${(stint.laps / 52) * 100}%`, backgroundColor: stint.color }}
+                    style={{ width: `${(stint.laps / totalRaceLaps) * 100}%`, backgroundColor: stint.color }}
                     className="h-full rounded flex items-center justify-center text-[10px] font-bold text-black opacity-90"
                   >
                     {stint.compound[0]} ({stint.laps}L)
@@ -66,6 +220,25 @@ export const RaceAnalysis: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+        
+        {/* Color Legend */}
+        <div className="flex flex-wrap gap-4 pt-2 border-t border-white/5 font-mono text-[10px] text-gray-400">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-[#E10600]" /> Soft
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-[#FFB800]" /> Medium
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-[#FFFFFF]" /> Hard
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-[#00E676]" /> Intermediate
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-[#1A73E8]" /> Wet
+          </div>
         </div>
       </div>
     </div>
