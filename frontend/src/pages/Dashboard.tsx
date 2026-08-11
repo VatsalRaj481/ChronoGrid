@@ -10,6 +10,11 @@ export const Dashboard: React.FC = () => {
   const [races, setRaces] = useState<Race[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const nextRace = races.length > 0 
+    ? [...races].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .find(r => new Date(`${r.date}T${r.time || '15:00:00Z'}`) > new Date()) || races[races.length - 1]
+    : null;
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -47,13 +52,17 @@ export const Dashboard: React.FC = () => {
           <div className="flex items-center gap-2 text-xs font-mono text-[#E10600]">
             <Activity className="w-4 h-4 animate-pulse" /> COMMAND CENTER
           </div>
-          <h1 className="text-3xl font-extrabold text-white">CHAMPIONSHIP HUB</h1>
+          <h1 className="text-3xl font-extrabold text-white">
+            CHAMPIONSHIP HUB <span className="text-gray-500 font-normal">| 2026 SEASON</span>
+          </h1>
         </div>
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3 text-xs font-mono">
             <CloudRain className="w-5 h-5 text-cyan-400" />
             <div>
-              <div className="text-gray-400">SILVERSTONE TRACK</div>
+              <div className="text-gray-400">
+                {nextRace ? `${nextRace.locality.toUpperCase()} TRACK` : 'LOADING...'}
+              </div>
               <div className="text-white font-bold">AIR: 22°C | DRY</div>
             </div>
           </div>
@@ -68,7 +77,7 @@ export const Dashboard: React.FC = () => {
           <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-[#FFB800]" /> World Drivers' Championship
+                <Trophy className="w-5 h-5 text-[#FFB800]" /> World Drivers' Championship (2026)
               </h2>
               <Link to="/drivers" className="text-xs font-mono text-cyan-400 hover:underline flex items-center gap-1">
                 Full Grid <ArrowUpRight className="w-3.5 h-3.5" />
@@ -122,7 +131,9 @@ export const Dashboard: React.FC = () => {
             <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-3">
               <div className="flex items-center justify-between text-xs font-mono text-gray-400">
                 <span>FASTEST LAP S3</span>
-                <span className="text-cyan-400">SILVERSTONE</span>
+                <span className="text-cyan-400">
+                  {nextRace ? nextRace.locality.toUpperCase() : 'LOADING...'}
+                </span>
               </div>
               <div className="text-3xl font-black font-mono text-white">27.142 <span className="text-sm font-normal text-gray-400">SEC</span></div>
               <div className="text-xs text-gray-300 flex items-center justify-between">
@@ -138,10 +149,10 @@ export const Dashboard: React.FC = () => {
           {/* Constructors Championship */}
           <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Shield className="w-5 h-5 text-cyan-400" /> World Constructors' Standings
+              <Shield className="w-5 h-5 text-cyan-400" /> World Constructors' Standings (2026)
             </h2>
-            <div className="space-y-3">
-              {constructors.slice(0, 5).map((team) => (
+            <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+              {constructors.map((team) => (
                 <div key={team.team_id} className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-1.5 h-8 rounded-full" style={{ backgroundColor: team.color }} />
@@ -162,10 +173,10 @@ export const Dashboard: React.FC = () => {
           {/* Calendar Spotlight */}
           <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Flag className="w-5 h-5 text-[#E10600]" /> Race Calendar
+              <Flag className="w-5 h-5 text-[#E10600]" /> Race Calendar (2026)
             </h2>
-            <div className="space-y-2">
-              {races.slice(0, 4).map((race) => (
+            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+              {races.map((race) => (
                 <div key={race.round} className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between text-xs">
                   <div>
                     <div className="font-bold text-white">{race.race_name}</div>

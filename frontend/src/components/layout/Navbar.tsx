@@ -1,10 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Activity, Gauge, GitCompare, Trophy, Flag, Cpu, Search, User, Zap } from 'lucide-react';
+import { F1API } from '../../services/api';
+import { Race } from '../../types';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [nextRace, setNextRace] = useState<Race | null>(null);
+
+  useEffect(() => {
+    F1API.getRaces()
+      .then((races) => {
+        if (!races || races.length === 0) return;
+        const sortedRaces = [...races].sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+        const now = new Date();
+        const futureRace = sortedRaces.find((race) => {
+          const raceDateTime = new Date(`${race.date}T${race.time || '15:00:00Z'}`);
+          return raceDateTime > now;
+        });
+        if (futureRace) {
+          setNextRace(futureRace);
+        } else {
+          setNextRace(sortedRaces[sortedRaces.length - 1]);
+        }
+      })
+      .catch((err) => console.error('Error fetching races in Navbar:', err));
+  }, []);
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: Activity },
@@ -37,10 +61,14 @@ export const Navbar: React.FC = () => {
         {/* Live Race Telemetry Status Ticker */}
         <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-full bg-black/50 border border-white/10 text-xs font-mono">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-gray-400">SESSION:</span>
-          <span className="text-white font-semibold">FP2 - BRITISH GP</span>
+          <span className="text-gray-400">NEXT GP:</span>
+          <span className="text-white font-semibold">
+            {nextRace ? nextRace.race_name.toUpperCase() : 'LOADING...'}
+          </span>
           <span className="text-gray-600">|</span>
-          <span className="text-cyan-400">TRACK: DRY 28°C</span>
+          <span className="text-cyan-400">
+            {nextRace ? nextRace.locality.toUpperCase() : 'LOADING...'}
+          </span>
         </div>
 
         {/* Navigation Links */}
