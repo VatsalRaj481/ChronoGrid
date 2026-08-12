@@ -173,7 +173,7 @@ export const Circuits: React.FC = () => {
             {/* Track Map Layout Image */}
             <div className="w-32 h-32 flex items-center justify-center p-3 rounded-xl bg-black/40 border border-white/5 shrink-0 self-center">
               <img 
-                src={`https://media.formula1.com/image/upload/content/dam/fom-website/2018-redesign-assets/circuit-maps-16x9/${c.image}_Circuit.png`}
+                src={`https://media.formula1.com/image/upload/content/dam/fom-website/2018-redesign-assets/Circuit%20maps%2016x9/${c.image}_Circuit.png`}
                 alt={`${c.name} track map`}
                 className="max-w-full max-h-full object-contain filter invert opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
                 onError={(e) => {
