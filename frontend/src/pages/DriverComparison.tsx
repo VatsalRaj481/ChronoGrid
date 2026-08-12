@@ -41,7 +41,7 @@ const driverRadarRegistry: Record<string, DriverHistory> = {
 
 export const DriverComparison: React.FC = () => {
   const [driverAId, setDriverAId] = useState('hamilton');
-  const [driverBId] = useState('max_verstappen');
+  const [driverBId, setDriverBId] = useState('max_verstappen');
   const [activeDrivers, setActiveDrivers] = useState<Driver[]>([]);
   const [dataLoaded, setDataLoaded] = useState(false);
   const setIsLoading = useLoaderStore((state) => state.setIsLoading);
