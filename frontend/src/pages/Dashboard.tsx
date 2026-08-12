@@ -158,7 +158,7 @@ export const Dashboard: React.FC = () => {
               <div className="text-4xl font-black font-display text-white tracking-tight leading-none">348.2 <span className="text-lg font-light text-gray-500">KM/H</span></div>
               <div className="text-xs text-gray-300 flex items-center justify-between font-mono pt-1">
                 <span className="font-sans font-medium text-gray-400">{drivers[0] ? `${drivers[0].full_name}` : 'Max Verstappen'}</span>
-                <span className="font-mono text-emerald-400 font-bold tracking-widest text-[10px]">DRS ON</span>
+                <span className="font-mono text-emerald-400 font-bold tracking-widest text-[10px]">STRAIGHT MODE</span>
               </div>
             </div>
 

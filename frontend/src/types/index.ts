@@ -55,7 +55,7 @@ export interface TelemetryPoint {
   brake: number;
   rpm: number;
   gear: number;
-  drs: number;
+  active_aero: number;
   x: number;
   y: number;
 }

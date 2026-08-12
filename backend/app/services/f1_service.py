@@ -291,15 +291,16 @@ class F1Service:
             rpm = int(speed * (35 if is_slow_track else 42) + 3200 + (i % 500))
             gear = int(min(8, max(2, speed / (35.0 if is_slow_track else 42.0))))
             
-            # DRS zones
-            drs = 0
+            # 2026: Active Aerodynamics (Straight Mode) replaces DRS
+            # On fast tracks, Straight Mode is active on the two main straights
+            active_aero = 0
             if not is_slow_track:
                 if (dist_pct > 0.15 and dist_pct < 0.35) or (dist_pct > 0.65 and dist_pct < 0.85):
-                    drs = 1
+                    active_aero = 1
                     speed += 12.0
             else:
                 if (dist_pct > 0.4 and dist_pct < 0.55):
-                    drs = 1
+                    active_aero = 1
                     speed += 8.0
 
             # Dynamic GPS map layout based on round to make different tracks look unique
@@ -317,7 +318,7 @@ class F1Service:
                 "brake": round(brake, 1),
                 "rpm": rpm,
                 "gear": gear,
-                "drs": drs,
+                "active_aero": active_aero,
                 "x": round(x, 2),
                 "y": round(y, 2)
             })

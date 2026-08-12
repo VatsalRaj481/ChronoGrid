@@ -113,7 +113,7 @@ export const LandingPage: React.FC = () => {
             transition={{ ...springReveal, delay: 0.3 }}
             className="max-w-2xl mx-auto text-base text-gray-400 font-normal leading-relaxed tracking-normal"
           >
-            Experience Formula 1 telemetry analyzed at millisecond precision. Synchronized speed curves, throttle traces, DRS actuation, and AI pit strategy modeling.
+            Experience Formula 1 telemetry analyzed at millisecond precision. Synchronized speed curves, throttle traces, active aerodynamics deployment, and AI pit strategy modeling.
           </motion.p>
 
           {/* Hero Actions */}
