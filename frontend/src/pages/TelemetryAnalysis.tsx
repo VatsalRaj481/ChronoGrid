@@ -130,9 +130,7 @@ export const TelemetryAnalysis: React.FC = () => {
     }
   }, [driverA, driverB, selectedRound, lap, dataLoaded, setIsLoading]);
 
-  if (!dataLoaded) {
-    return null;
-  }
+
 
   // Build cumulative elapsed time arrays to calculate authentic time deltas
   const timesA: number[] = [];
@@ -284,6 +282,10 @@ export const TelemetryAnalysis: React.FC = () => {
   const trackCenterlineString = combinedData
     .map(pt => `${pt.centerlineX},${pt.centerlineY}`)
     .join(' ');
+
+  if (!dataLoaded) {
+    return null;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
