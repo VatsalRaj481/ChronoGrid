@@ -4,12 +4,16 @@ import { motion } from 'framer-motion';
 import { Gauge, Shield, Trophy, ArrowRight, Zap, Flame } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Race } from '../types';
+import { useLoaderStore } from '../store/useLoaderStore';
 
 export const LandingPage: React.FC = () => {
   const [nextRace, setNextRace] = useState<Race | null>(null);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
 
   useEffect(() => {
+    setIsLoading(true);
     F1API.getRaces().then(races => {
       if (!races || races.length === 0) return;
       
@@ -27,8 +31,11 @@ export const LandingPage: React.FC = () => {
       }
     }).catch(err => {
       console.error("Error fetching next race:", err);
+    }).finally(() => {
+      setIsLoading(false);
+      setDataLoaded(true);
     });
-  }, []);
+  }, [setIsLoading]);
 
   useEffect(() => {
     if (!nextRace) return;
@@ -61,6 +68,10 @@ export const LandingPage: React.FC = () => {
     stiffness: 100,
     damping: 18,
   };
+
+  if (!dataLoaded) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen space-y-24 pb-24 overflow-hidden relative">

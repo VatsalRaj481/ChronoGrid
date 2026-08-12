@@ -3,7 +3,7 @@ import { Flag, Clock, Calendar } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Race, Driver } from '../types';
 import { useSearchParams } from 'react-router-dom';
-import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { useLoaderStore } from '../store/useLoaderStore';
 import { motion } from 'framer-motion';
 
 interface Stint {
@@ -36,7 +36,8 @@ export const RaceAnalysis: React.FC = () => {
   const [races, setRaces] = useState<Race[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [selectedRound, setSelectedRound] = useState<number>(1);
-  const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
   
   const [raceResults, setRaceResults] = useState<RaceResultsData | null>(null);
   const [resultsLoading, setResultsLoading] = useState(true);
@@ -44,6 +45,7 @@ export const RaceAnalysis: React.FC = () => {
   // Initialize schedules and rosters
   useEffect(() => {
     const loadData = async () => {
+      setIsLoading(true);
       try {
         const [rData, dData] = await Promise.all([
           F1API.getRaces(),
@@ -61,11 +63,12 @@ export const RaceAnalysis: React.FC = () => {
       } catch (err) {
         console.error("Error loading Race Analysis calendar:", err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
+        setDataLoaded(true);
       }
     };
     loadData();
-  }, []);
+  }, [setIsLoading, searchParams]);
 
   // Update selectedRound when searchParams changes (e.g. navigation from dashboard)
   useEffect(() => {
@@ -78,6 +81,7 @@ export const RaceAnalysis: React.FC = () => {
   // Fetch results dynamically from backend API whenever round selection updates
   useEffect(() => {
     const loadResults = async () => {
+      setIsLoading(true);
       setResultsLoading(true);
       try {
         const data = await F1API.getRaceResults(selectedRound);
@@ -86,13 +90,14 @@ export const RaceAnalysis: React.FC = () => {
         console.error(`Error loading results for round ${selectedRound}:`, err);
       } finally {
         setResultsLoading(false);
+        setIsLoading(false);
       }
     };
     loadResults();
-  }, [selectedRound]);
+  }, [selectedRound, setIsLoading]);
 
-  if (loading || (resultsLoading && !raceResults)) {
-    return <LoadingScreen isLoading={loading || resultsLoading} />;
+  if (!dataLoaded) {
+    return null;
   }
 
   const selectedRace = races.find(r => r.round === selectedRound) || races[0] || null;

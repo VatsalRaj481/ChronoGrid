@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Cpu, Play, Sliders, Zap, RefreshCw, Sun, CloudRain } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Race, Constructor } from '../types';
-import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { useLoaderStore } from '../store/useLoaderStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CircuitInfo {
@@ -14,7 +14,8 @@ interface CircuitInfo {
 export const StrategySimulator: React.FC = () => {
   const [races, setRaces] = useState<Race[]>([]);
   const [constructors, setConstructors] = useState<Constructor[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
 
   // Inputs
   const [selectedConstructor, setSelectedConstructor] = useState<string>('');
@@ -56,6 +57,7 @@ export const StrategySimulator: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      setIsLoading(true);
       try {
         const [rData, cData] = await Promise.all([
           F1API.getRaces(),
@@ -72,11 +74,12 @@ export const StrategySimulator: React.FC = () => {
       } catch (err) {
         console.error("Error loading Strategy Simulator data:", err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
+        setDataLoaded(true);
       }
     };
     loadData();
-  }, []);
+  }, [setIsLoading]);
 
   const selectedRace = races.find(r => r.round === selectedRound) || races[0] || null;
   const circuitInfo = selectedRace ? (circuitDatabase[selectedRace.circuit_id] || { laps: 55, baseLapSeconds: 85.0, name: selectedRace.locality }) : { laps: 55, baseLapSeconds: 85.0, name: 'Unknown' };
@@ -243,8 +246,8 @@ export const StrategySimulator: React.FC = () => {
     }, 1500);
   };
 
-  if (loading) {
-    return <LoadingScreen isLoading={loading} />;
+  if (!dataLoaded) {
+    return null;
   }
 
   return (

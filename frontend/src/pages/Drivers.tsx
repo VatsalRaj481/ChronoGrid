@@ -2,27 +2,32 @@ import React, { useEffect, useState } from 'react';
 import { F1API } from '../services/api';
 import { Driver } from '../types';
 import { User, Search, Trophy } from 'lucide-react';
-import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { useLoaderStore } from '../store/useLoaderStore';
 import { motion } from 'framer-motion';
 
 export const Drivers: React.FC = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
 
   useEffect(() => {
+    setIsLoading(true);
     F1API.getDrivers()
       .then(setDrivers)
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => {
+        setIsLoading(false);
+        setDataLoaded(true);
+      });
+  }, [setIsLoading]);
 
   const filteredDrivers = drivers.filter(d => 
     d.full_name.toLowerCase().includes(search.toLowerCase()) ||
     d.team_name.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) {
-    return <LoadingScreen isLoading={loading} />;
+  if (!dataLoaded) {
+    return null;
   }
 
   return (

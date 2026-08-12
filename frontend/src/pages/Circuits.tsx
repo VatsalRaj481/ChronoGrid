@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Compass, Trophy, MapPin } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Race } from '../types';
-import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { useLoaderStore } from '../store/useLoaderStore';
 import { motion } from 'framer-motion';
 
 interface CircuitDetails {
@@ -18,9 +18,11 @@ interface CircuitDetails {
 
 export const Circuits: React.FC = () => {
   const [races, setRaces] = useState<Race[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
 
   useEffect(() => {
+    setIsLoading(true);
     F1API.getRaces()
       .then(data => {
         setRaces(data);
@@ -29,9 +31,10 @@ export const Circuits: React.FC = () => {
         console.error("Error loading races for circuit directory:", err);
       })
       .finally(() => {
-        setLoading(false);
+        setIsLoading(false);
+        setDataLoaded(true);
       });
-  }, []);
+  }, [setIsLoading]);
 
   const circuitRegistry: Record<string, CircuitDetails> = {
     bahrain: { name: 'Bahrain International Circuit', location: 'Sakhir, Bahrain', length: '5.412 km', laps: 57, drs: 3, record: '1:31.447 (Pedro de la Rosa)', turns: 15, image: 'Bahrain' },
@@ -60,8 +63,8 @@ export const Circuits: React.FC = () => {
     yas_marina: { name: 'Yas Marina Circuit', location: 'Abu Dhabi, UAE', length: '5.281 km', laps: 58, drs: 2, record: '1:26.103 (Max Verstappen)', turns: 16, image: 'Abu_Dhabi' }
   };
 
-  if (loading) {
-    return <LoadingScreen isLoading={loading} />;
+  if (!dataLoaded) {
+    return null;
   }
 
   // Get unique circuits dynamically from the active schedule

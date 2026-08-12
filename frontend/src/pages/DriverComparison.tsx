@@ -3,7 +3,7 @@ import { GitCompare, Trophy, Award } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Driver } from '../types';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { useLoaderStore } from '../store/useLoaderStore';
 import { motion } from 'framer-motion';
 
 interface DriverHistory {
@@ -41,9 +41,10 @@ const driverRadarRegistry: Record<string, DriverHistory> = {
 
 export const DriverComparison: React.FC = () => {
   const [driverAId, setDriverAId] = useState('hamilton');
-  const [driverBId, setDriverBId] = useState('max_verstappen');
+  const [driverBId] = useState('max_verstappen');
   const [activeDrivers, setActiveDrivers] = useState<Driver[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
 
   // Dynamic career stats states loaded asynchronously from Jolpica
   const [careerA, setCareerA] = useState<{ titles: number; wins: number; podiums: number } | null>(null);
@@ -51,6 +52,7 @@ export const DriverComparison: React.FC = () => {
 
   // Initial load of grid standings
   useEffect(() => {
+    setIsLoading(true);
     F1API.getDrivers()
       .then(data => {
         setActiveDrivers(data);
@@ -63,29 +65,36 @@ export const DriverComparison: React.FC = () => {
       })
       .catch(err => {
         console.error("Error loading drivers for comparison suite:", err);
-      })
-      .finally(() => {
-        setLoading(false);
       });
-  }, []);
+  }, [setIsLoading]);
 
   // Fetch Driver A career statistics on selection change
   useEffect(() => {
     if (driverAId) {
+      setIsLoading(true);
       F1API.getDriverCareer(driverAId)
         .then(setCareerA)
-        .catch(err => console.error("Error loading career stats for Driver A:", err));
+        .catch(err => console.error("Error loading career stats for Driver A:", err))
+        .finally(() => {
+          setIsLoading(false);
+          setDataLoaded(true);
+        });
     }
-  }, [driverAId]);
+  }, [driverAId, setIsLoading]);
 
   // Fetch Driver B career statistics on selection change
   useEffect(() => {
     if (driverBId) {
+      setIsLoading(true);
       F1API.getDriverCareer(driverBId)
         .then(setCareerB)
-        .catch(err => console.error("Error loading career stats for Driver B:", err));
+        .catch(err => console.error("Error loading career stats for Driver B:", err))
+        .finally(() => {
+          setIsLoading(false);
+          setDataLoaded(true);
+        });
     }
-  }, [driverBId]);
+  }, [driverBId, setIsLoading]);
 
   const getEnrichedDriver = (d: Driver, career: { titles: number; wins: number; podiums: number } | null) => {
     const key = d.driver_id.toLowerCase();
@@ -123,8 +132,8 @@ export const DriverComparison: React.FC = () => {
   const dA = rawA ? getEnrichedDriver(rawA, careerA) : null;
   const dB = rawB ? getEnrichedDriver(rawB, careerB) : null;
 
-  if (loading || !dA || !dB) {
-    return <LoadingScreen isLoading={loading} />;
+  if (!dataLoaded || !dA || !dB) {
+    return null;
   }
 
   const radarData = [

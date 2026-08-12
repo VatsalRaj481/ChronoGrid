@@ -3,7 +3,7 @@ import { F1API } from '../services/api';
 import { TelemetryPoint, Driver, Race } from '../types';
 import { Gauge, Play, Pause, RotateCcw, Zap } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { useLoaderStore } from '../store/useLoaderStore';
 
 export const TelemetryAnalysis: React.FC = () => {
   const [driverA, setDriverA] = useState('VER');
@@ -15,7 +15,8 @@ export const TelemetryAnalysis: React.FC = () => {
 
   const [telemetryA, setTelemetryA] = useState<TelemetryPoint[]>([]);
   const [telemetryB, setTelemetryB] = useState<TelemetryPoint[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playProgress, setPlayProgress] = useState(0);
@@ -23,6 +24,7 @@ export const TelemetryAnalysis: React.FC = () => {
   // Initial load of races and drivers
   useEffect(() => {
     const loadData = async () => {
+      setIsLoading(true);
       try {
         const [rData, dData] = await Promise.all([
           F1API.getRaces(),
@@ -42,12 +44,12 @@ export const TelemetryAnalysis: React.FC = () => {
       }
     };
     loadData();
-  }, []);
+  }, [setIsLoading]);
 
   // Fetch telemetry dynamically based on driver, round, and lap selections
   useEffect(() => {
     const fetchTelemetry = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
         const [dataA, dataB] = await Promise.all([
           F1API.getTelemetry(driverA, lap, selectedRound),
@@ -80,13 +82,18 @@ export const TelemetryAnalysis: React.FC = () => {
       } catch (err) {
         console.error("Error fetching telemetry:", err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
+        setDataLoaded(true);
       }
     };
     if (races.length > 0) {
       fetchTelemetry();
     }
-  }, [driverA, driverB, selectedRound, lap, races]);
+  }, [driverA, driverB, selectedRound, lap, races, setIsLoading]);
+
+  if (!dataLoaded) {
+    return null;
+  }
 
   // Build cumulative elapsed time arrays to calculate authentic time deltas
   const timesA: number[] = [];
@@ -345,11 +352,8 @@ export const TelemetryAnalysis: React.FC = () => {
         </div>
       </div>
 
-      {/* Loading state view */}
-      {loading ? (
-        <LoadingScreen isLoading={loading} />
-      ) : (
-        <>
+      {/* Diagnostics and Graph Display */}
+      <>
           {/* Hover diagnostics display */}
           {activePoint && (
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 font-mono">
@@ -492,7 +496,6 @@ export const TelemetryAnalysis: React.FC = () => {
             </div>
           </div>
         </>
-      )}
     </div>
   );
 };

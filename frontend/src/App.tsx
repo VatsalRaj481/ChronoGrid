@@ -13,9 +13,17 @@ import { Circuits } from './pages/Circuits';
 import { StrategySimulator } from './pages/StrategySimulator';
 import { Champions } from './pages/Champions';
 import { PageTransition } from './components/layout/PageTransition';
+import { LoadingScreen } from './components/layout/LoadingScreen';
+import { useLoaderStore } from './store/useLoaderStore';
 
 const AnimatedRoutes: React.FC = () => {
   const location = useLocation();
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
+
+  React.useEffect(() => {
+    setIsLoading(true);
+  }, [location.pathname, setIsLoading]);
+
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
@@ -35,9 +43,12 @@ const AnimatedRoutes: React.FC = () => {
 };
 
 export const App: React.FC = () => {
+  const isLoading = useLoaderStore((state) => state.isLoading);
+
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen relative">
+        <LoadingScreen isLoading={isLoading} />
         <Navbar />
         <main className="flex-grow">
           <AnimatedRoutes />

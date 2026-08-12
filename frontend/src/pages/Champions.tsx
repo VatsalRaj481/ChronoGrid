@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Trophy, Search, Star, Award, Shield, User } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Champion } from '../types';
-import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { useLoaderStore } from '../store/useLoaderStore';
 import { motion } from 'framer-motion';
 
 export const Champions: React.FC = () => {
   const [champions, setChampions] = useState<Champion[]>([]);
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
 
   useEffect(() => {
+    setIsLoading(true);
     F1API.getChampions()
       .then(data => {
         setChampions(data);
@@ -19,9 +21,10 @@ export const Champions: React.FC = () => {
         console.error("Error loading F1 Champions list:", err);
       })
       .finally(() => {
-        setLoading(false);
+        setIsLoading(false);
+        setDataLoaded(true);
       });
-  }, []);
+  }, [setIsLoading]);
 
   const filteredChampions = champions.filter(c => 
     c.driver_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -30,8 +33,8 @@ export const Champions: React.FC = () => {
     c.nationality.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) {
-    return <LoadingScreen isLoading={loading} />;
+  if (!dataLoaded) {
+    return null;
   }
 
   // Count titles per driver for a stats widget

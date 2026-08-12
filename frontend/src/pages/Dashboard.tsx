@@ -4,14 +4,15 @@ import { Driver, Constructor, Race } from '../types';
 import { Trophy, Activity, CloudRain, Shield, Flag, ArrowUpRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { useLoaderStore } from '../store/useLoaderStore';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [constructors, setConstructors] = useState<Constructor[]>([]);
   const [races, setRaces] = useState<Race[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const setIsLoading = useLoaderStore((state) => state.setIsLoading);
   const [latestFastestLap, setLatestFastestLap] = useState<{
     time: string;
     driver_name: string;
@@ -26,6 +27,7 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      setIsLoading(true);
       try {
         const [dData, cData, rData] = await Promise.all([
           F1API.getDrivers(),
@@ -54,14 +56,15 @@ export const Dashboard: React.FC = () => {
       } catch (err) {
         console.error("Dashboard loading error:", err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
+        setDataLoaded(true);
       }
     };
     loadData();
-  }, []);
+  }, [setIsLoading]);
 
-  if (loading) {
-    return <LoadingScreen isLoading={loading} />;
+  if (!dataLoaded) {
+    return null;
   }
 
   const now = new Date();
