@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Logo } from './Logo';
 import { Zap, ShieldCheck, Cpu, Database } from 'lucide-react';
 
@@ -31,9 +32,9 @@ export const Footer: React.FC = () => {
         <div>
           <h4 className="text-white font-semibold mb-4 uppercase tracking-wider text-[11px] font-display">Platform Modules</h4>
           <ul className="space-y-2.5">
-            <li><a href="/telemetry" className="hover:text-[#E10600] transition-colors duration-200">Comparative Lap Traces</a></li>
-            <li><a href="/comparison" className="hover:text-[#E10600] transition-colors duration-200">Driver Radar Comparisons</a></li>
-            <li><a href="/simulator" className="hover:text-[#E10600] transition-colors duration-200">AI Pit Strategy Model</a></li>
+            <li><Link to="/telemetry" className="hover:text-[#E10600] transition-colors duration-200">Comparative Lap Traces</Link></li>
+            <li><Link to="/comparison" className="hover:text-[#E10600] transition-colors duration-200">Driver Radar Comparisons</Link></li>
+            <li><Link to="/simulator" className="hover:text-[#E10600] transition-colors duration-200">AI Pit Strategy Model</Link></li>
           </ul>
         </div>
 
