@@ -1,29 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-  {/* Outer Ring */}
-  <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.1)" strokeWidth="2" fill="none" />
-  <circle 
-    cx="50" 
-    cy="50" 
-    r="45" 
-    stroke="#E10600" 
-    strokeWidth="3" 
-    strokeDasharray="283" 
-    strokeDashoffset="75" 
-    fill="none" 
-  />
-  
-  {/* Inner Grid / Speedometer markings */}
-  <line x1="50" y1="15" x2="50" y2="25" stroke="#E10600" strokeWidth="2" />
-  <line x1="85" y1="50" x2="75" y2="50" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-  <line x1="50" y1="85" x2="50" y2="75" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-  <line x1="15" y1="50" x2="25" y2="50" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-  
-  {/* Checkered flag shape */}
-  <path d="M40 38h8v8h-8zm8 8h8v8h-8zm8-8h8v8h-8z" fill="#FFFFFF" />
-  <path d="M48 38h8v8h-8zm8 8h8v8h-8z" fill="#E10600" />
-  <path d="M40 46h8v8h-8z" fill="#E10600" />
-  
-  {/* Speed pointer */}
-  <polygon points="50,50 48,50 49,22 51,22 52,50" fill="#00F0FF" />
-  <circle cx="50" cy="50" r="4" fill="#00F0FF" />
+  <!-- Dark background circle -->
+  <circle cx="50" cy="50" r="50" fill="#070709"/>
+  <!-- Outer dim ring -->
+  <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.1)" stroke-width="2" fill="none"/>
+  <!-- Red arc (speedometer sweep) -->
+  <circle cx="50" cy="50" r="45" stroke="#E10600" stroke-width="3" stroke-dasharray="283" stroke-dashoffset="75" fill="none"/>
+  <!-- Tick marks -->
+  <line x1="50" y1="7"  x2="50" y2="18" stroke="#E10600" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="84" y1="50" x2="73" y2="50" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/>
+  <line x1="50" y1="93" x2="50" y2="82" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/>
+  <line x1="16" y1="50" x2="27" y2="50" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/>
+  <!-- Checkered flag pattern -->
+  <rect x="40" y="38" width="8" height="8" fill="#FFFFFF"/>
+  <rect x="48" y="38" width="8" height="8" fill="#E10600"/>
+  <rect x="56" y="38" width="8" height="8" fill="#FFFFFF"/>
+  <rect x="40" y="46" width="8" height="8" fill="#E10600"/>
+  <rect x="48" y="46" width="8" height="8" fill="#FFFFFF"/>
+  <rect x="56" y="46" width="8" height="8" fill="#E10600"/>
+  <!-- Speed needle -->
+  <polygon points="50,50 48.5,50 49.5,20 50.5,20 51.5,50" fill="#00F0FF"/>
+  <!-- Center hub -->
+  <circle cx="50" cy="50" r="4.5" fill="#00F0FF"/>
+  <circle cx="50" cy="50" r="2" fill="#070709"/>
 </svg>
