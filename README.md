@@ -9,7 +9,7 @@
 [![TailwindCSS](https://img.shields.io/badge/Styling-Tailwind_3.4-38B2AC?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
 [![OpenF1](https://img.shields.io/badge/Data-OpenF1_API-E10600?style=for-the-badge)](https://openf1.org/)
 
-*Engineered with design inspiration from Porsche paddock interfaces and official Formula 1 telemetry systems.*
+*Engineered with design inspiration from premium digital paddock dashboards and official Formula 1 telemetry systems.*
 
 ---
 
