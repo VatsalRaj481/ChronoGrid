@@ -225,9 +225,9 @@ export const TelemetryAnalysis: React.FC = () => {
   const getCornerLabel = () => {
     const selectedRace = races.find(r => r.round === selectedRound);
     if (!selectedRace) return 'MONACO TURN 4 (CASINO SQUARE)';
-    const loc = selectedRace.locality.toLowerCase();
+    const loc = (selectedRace.locality || '').toLowerCase();
     const idx = hoverIndex !== null ? hoverIndex : 50;
-    const turnNum = 1 + Math.floor((idx / combinedData.length) * 15);
+    const turnNum = 1 + Math.floor((idx / (combinedData.length || 1)) * 15);
     
     if (loc.includes('monaco')) {
       if (idx < 20) return `MONACO - TURN 1 (SAINTE DEVOTE)`;
@@ -260,7 +260,7 @@ export const TelemetryAnalysis: React.FC = () => {
   const getCircuitLaps = () => {
     const selectedRace = races.find(r => r.round === selectedRound);
     if (!selectedRace) return 56;
-    const cid = selectedRace.circuit_id.toLowerCase();
+    const cid = (selectedRace.circuit_id || '').toLowerCase();
     
     const lapsRegistry: Record<string, number> = {
       bahrain: 57, jeddah: 50, albert_park: 58, shanghai: 56, miami: 57, imola: 63,
@@ -347,7 +347,7 @@ export const TelemetryAnalysis: React.FC = () => {
             >
               {drivers.map(d => (
                 <option key={d.driver_id} value={d.code} className="bg-[#121218] text-white font-mono">
-                  {d.code} ({d.team_name.split(' ')[0]})
+                  {d.code} ({d.team_name ? d.team_name.split(' ')[0] : 'UNK'})
                 </option>
               ))}
             </select>
@@ -365,7 +365,7 @@ export const TelemetryAnalysis: React.FC = () => {
             >
               {drivers.map(d => (
                 <option key={d.driver_id} value={d.code} className="bg-[#121218] text-white font-mono">
-                  {d.code} ({d.team_name.split(' ')[0]})
+                  {d.code} ({d.team_name ? d.team_name.split(' ')[0] : 'UNK'})
                 </option>
               ))}
             </select>
@@ -434,7 +434,7 @@ export const TelemetryAnalysis: React.FC = () => {
               <div className="p-4 rounded-xl glass-panel border border-white/10 space-y-1">
                 <div className="text-[10px] text-gray-400">DELTA TIME</div>
                 <div className="text-xl font-black text-emerald-400 font-display">
-                  {activePoint.timeDelta > 0 ? `+${activePoint.timeDelta.toFixed(3)}s` : `${activePoint.timeDelta.toFixed(3)}s`}
+                  {(activePoint.timeDelta || 0) > 0 ? `+${(activePoint.timeDelta || 0).toFixed(3)}s` : `${(activePoint.timeDelta || 0).toFixed(3)}s`}
                 </div>
               </div>
             </div>
@@ -467,7 +467,7 @@ export const TelemetryAnalysis: React.FC = () => {
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis dataKey="distance" stroke="#666" fontSize={10} unit="m" />
                       <YAxis stroke="#666" fontSize={10} domain={['auto', 'auto']} />
-                      <Tooltip content={<div className="hidden" />} />
+                      <Tooltip content={() => null} />
                       <Line type="monotone" dataKey="speedA" stroke="#E10600" strokeWidth={2.5} dot={false} isAnimationActive={false} />
                       <Line type="monotone" dataKey="speedB" stroke="#00F0FF" strokeWidth={2.5} dot={false} isAnimationActive={false} />
                     </LineChart>
