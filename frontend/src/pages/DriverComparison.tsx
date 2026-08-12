@@ -116,7 +116,7 @@ export const DriverComparison: React.FC = () => {
   };
 
   const rawA = activeDrivers.find(d => d.driver_id === driverAId) || activeDrivers[0];
-  const rawB = activeDrivers.find(d => d.id === driverBId) || activeDrivers.find(d => d.driver_id === driverBId) || activeDrivers[1];
+  const rawB = activeDrivers.find(d => d.driver_id === driverBId) || activeDrivers[1];
 
   const dA = rawA ? getEnrichedDriver(rawA, careerA) : null;
   const dB = rawB ? getEnrichedDriver(rawB, careerB) : null;
