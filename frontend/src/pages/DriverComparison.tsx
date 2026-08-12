@@ -65,6 +65,8 @@ export const DriverComparison: React.FC = () => {
       })
       .catch(err => {
         console.error("Error loading drivers for comparison suite:", err);
+        setIsLoading(false);
+        setDataLoaded(true);
       });
   }, [setIsLoading]);
 

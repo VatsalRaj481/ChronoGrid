@@ -41,6 +41,8 @@ export const TelemetryAnalysis: React.FC = () => {
         }
       } catch (err) {
         console.error("Error loading Telemetry Studio databases:", err);
+        setIsLoading(false);
+        setDataLoaded(true);
       }
     };
     loadData();
