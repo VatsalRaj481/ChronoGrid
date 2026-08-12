@@ -30,7 +30,7 @@ class F1Service:
             return cached
 
         # Try Ergast/Jolpica API for current drivers
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=1.5) as client:
             try:
                 resp = await client.get(f"{settings.ERGAST_BASE_URL}/current/driverStandings.json")
                 if resp.status_code == 200:
@@ -84,7 +84,7 @@ class F1Service:
             return cached
 
         # Try Ergast/Jolpica API for current constructor standings
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=1.5) as client:
             try:
                 resp = await client.get(f"{settings.ERGAST_BASE_URL}/current/constructorStandings.json")
                 if resp.status_code == 200:
@@ -160,7 +160,7 @@ class F1Service:
         if cached:
             return cached
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=1.5) as client:
             try:
                 resp = await client.get(f"{settings.ERGAST_BASE_URL}/current.json")
                 if resp.status_code == 200:
@@ -416,10 +416,10 @@ class F1Service:
         if cached:
             return cached
 
-        # Fetch actual F1 results for the 2026 season from Jolpica
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        # Fetch actual F1 results for the current season from Jolpica
+        async with httpx.AsyncClient(timeout=1.5) as client:
             try:
-                resp = await client.get(f"{settings.ERGAST_BASE_URL}/2026/{round_num}/results.json")
+                resp = await client.get(f"{settings.ERGAST_BASE_URL}/current/{round_num}/results.json")
                 if resp.status_code == 200:
                     data = resp.json()
                     race_data = data['MRData']['RaceTable']['Races']
@@ -442,7 +442,7 @@ class F1Service:
                         avg_pit = "2.35"
                         pit_team = "Red Bull Racing"
                         try:
-                            pit_resp = await client.get(f"{settings.ERGAST_BASE_URL}/2026/{round_num}/pitstops.json")
+                            pit_resp = await client.get(f"{settings.ERGAST_BASE_URL}/current/{round_num}/pitstops.json")
                             if pit_resp.status_code == 200:
                                 pit_data = pit_resp.json()['MRData']['RaceTable']['Races']
                                 if len(pit_data) > 0:
@@ -663,7 +663,7 @@ class F1Service:
         wins = 0
         podiums = 0
 
-        async with httpx.AsyncClient(timeout=6.0) as client:
+        async with httpx.AsyncClient(timeout=1.5) as client:
             try:
                 # 1. Championships count (DriverStandings equal to 1st)
                 resp_standings = await client.get(f"{settings.ERGAST_BASE_URL}/drivers/{api_driver_id}/driverStandings/1.json?limit=1")
