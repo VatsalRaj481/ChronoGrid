@@ -103,7 +103,7 @@ export const F1API = {
           brake: speed < 140 ? 80 : 0,
           rpm: Math.round(speed * 35 + 3500),
           gear: Math.min(8, Math.max(2, Math.floor(speed / 35))),
-          drs: pct > 0.3 && pct < 0.5 ? 1 : 0,
+          active_aero: pct > 0.3 && pct < 0.5 ? 1 : 0,
           x: Math.round(100 * Math.cos(pct * 2 * Math.PI)),
           y: Math.round(100 * Math.sin(pct * 2 * Math.PI))
         });
