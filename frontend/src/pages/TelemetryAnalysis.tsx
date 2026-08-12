@@ -21,7 +21,7 @@ export const TelemetryAnalysis: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playProgress, setPlayProgress] = useState(0);
 
-  // Initial load of races and drivers
+  // Initial load of races, drivers, and initial telemetry
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -32,21 +32,59 @@ export const TelemetryAnalysis: React.FC = () => {
         ]);
         setRaces(rData);
         setDrivers(dData);
+
+        let initialRound = 1;
+        let initialA = 'VER';
+        let initialB = 'NOR';
+
         if (rData.length > 0) {
-          setSelectedRound(rData[0].round);
+          initialRound = rData[0].round;
+          setSelectedRound(initialRound);
         }
         if (dData.length > 0) {
-          setDriverA(dData[0].code);
-          setDriverB(dData[1] ? dData[1].code : dData[0].code);
+          initialA = dData[0].code;
+          initialB = dData[1] ? dData[1].code : dData[0].code;
+          setDriverA(initialA);
+          setDriverB(initialB);
         }
+
+        // Fetch initial telemetry directly in loadData to guarantee atomic hydration!
+        const [dataA, dataB] = await Promise.all([
+          F1API.getTelemetry(initialA, lap, initialRound),
+          F1API.getTelemetry(initialB, lap, initialRound)
+        ]);
+
+        const selectedRace = rData.find(r => r.round === initialRound);
+        const loc = selectedRace ? selectedRace.locality.toLowerCase() : '';
+        
+        let speedMultiplier = 1.0;
+        if (loc.includes('monaco')) speedMultiplier = 0.82;
+        else if (loc.includes('spa') || loc.includes('monza')) speedMultiplier = 1.08;
+        else if (loc.includes('zandvoort') || loc.includes('hungaroring')) speedMultiplier = 0.9;
+        
+        const adjustedA = dataA.map(pt => ({
+          ...pt,
+          speed: Math.round(pt.speed * speedMultiplier),
+          rpm: Math.round(pt.rpm * speedMultiplier)
+        }));
+
+        const adjustedB = dataB.map(pt => ({
+          ...pt,
+          speed: Math.round(pt.speed * speedMultiplier),
+          rpm: Math.round(pt.rpm * speedMultiplier)
+        }));
+
+        setTelemetryA(adjustedA);
+        setTelemetryB(adjustedB);
       } catch (err) {
         console.error("Error loading Telemetry Studio databases:", err);
+      } finally {
         setIsLoading(false);
         setDataLoaded(true);
       }
     };
     loadData();
-  }, [setIsLoading]);
+  }, [setIsLoading, lap]);
 
   // Fetch telemetry dynamically based on driver, round, and lap selections
   useEffect(() => {
@@ -85,13 +123,12 @@ export const TelemetryAnalysis: React.FC = () => {
         console.error("Error fetching telemetry:", err);
       } finally {
         setIsLoading(false);
-        setDataLoaded(true);
       }
     };
-    if (races.length > 0) {
+    if (dataLoaded) {
       fetchTelemetry();
     }
-  }, [driverA, driverB, selectedRound, lap, races, setIsLoading]);
+  }, [driverA, driverB, selectedRound, lap, dataLoaded, setIsLoading]);
 
   if (!dataLoaded) {
     return null;
