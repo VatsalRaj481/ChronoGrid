@@ -6,35 +6,62 @@
   body {
     background-color: #070709;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(225, 6, 0, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(0, 240, 255, 0.05) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(225, 6, 0, 0.06) 0px, transparent 40%),
+      radial-gradient(at 100% 100%, rgba(0, 240, 255, 0.04) 0px, transparent 45%),
+      linear-gradient(45deg, rgba(22, 23, 30, 0.15) 25%, transparent 25%, transparent 75%, rgba(22, 23, 30, 0.15) 75%),
+      linear-gradient(-45deg, rgba(22, 23, 30, 0.15) 25%, transparent 25%, transparent 75%, rgba(22, 23, 30, 0.15) 75%);
+    background-size: 100% 100%, 100% 100%, 8px 8px, 8px 8px;
+    background-position: 0 0, 0 0, 0 0, 4px 4px;
     background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6, .display-num {
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
 }
 
+.carbon-pattern {
+  background-color: #0a0b0f;
+  background-image: 
+    linear-gradient(45deg, #111217 25%, transparent 25%, transparent 75%, #111217 75%, #111217),
+    linear-gradient(45deg, #111217 25%, #0a0b0f 25%, #0a0b0f 75%, #111217 75%, #111217);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+}
+
+.brushed-metal {
+  background: linear-gradient(135deg, #14151c 0%, #0d0e12 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
 .glass-panel {
-  background: rgba(15, 15, 20, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background: rgba(10, 11, 15, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.005) 100%);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .glass-card:hover {
-  border-color: rgba(225, 6, 0, 0.4);
-  box-shadow: 0 0 20px rgba(225, 6, 0, 0.15);
+  border-color: rgba(225, 6, 0, 0.3);
+  box-shadow: 0 0 24px rgba(225, 6, 0, 0.1);
 }
 
-.carbon-pattern {
-  background-color: #0d0d12;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 0);
-  background-size: 16px 16px;
+/* Active Press scale utility */
+.active-press {
+  transition: transform 0.1s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.active-press:active {
+  transform: scale(0.96) !important;
 }
 
 /* Custom Scrollbar */
@@ -48,7 +75,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2a35;
+  background: #1c1d24;
   border-radius: 3px;
 }
 

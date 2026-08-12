@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { GitCompare, Shield, Trophy, Zap, Award, User } from 'lucide-react';
+import { GitCompare, Trophy, Award } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Driver } from '../types';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { motion } from 'framer-motion';
 
 interface DriverHistory {
   qualy: number;
@@ -122,14 +124,7 @@ export const DriverComparison: React.FC = () => {
   const dB = rawB ? getEnrichedDriver(rawB, careerB) : null;
 
   if (loading || !dA || !dB) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-[#E10600] border-t-transparent animate-spin" />
-          <span className="font-mono text-xs tracking-widest text-gray-400">CALIBRATING COMPARISON METRICS...</span>
-        </div>
-      </div>
-    );
+    return <LoadingScreen isLoading={loading} />;
   }
 
   const radarData = [
@@ -143,20 +138,22 @@ export const DriverComparison: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
-      <div className="p-6 rounded-2xl glass-panel border border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-mono text-[#E10600]">
-            <GitCompare className="w-4 h-4" /> DRIVER HEAD TO HEAD
+      <div className="relative p-6 rounded-2xl glass-panel border border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 overflow-hidden">
+        <div className="absolute top-0 left-0 h-full w-1.5 bg-[#E10600]" />
+        
+        <div className="space-y-1 pl-2">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-[#E10600]">
+            <GitCompare className="w-4 h-4 text-[#E10600] animate-pulse-slow" /> DRIVER HEAD TO HEAD
           </div>
-          <h1 className="text-3xl font-extrabold text-white">
-            DRIVER COMPARISON SUITE <span className="text-gray-500 font-normal">| 2026 SEASON</span>
+          <h1 className="text-3xl font-black text-white font-display uppercase tracking-tight">
+            DRIVER COMPARISON SUITE <span className="text-gray-500 font-light">| 2026 SEASON</span>
           </h1>
         </div>
 
         {/* Selection Pickers */}
         <div className="flex flex-wrap items-center gap-4 font-mono text-xs">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
-            <span className="text-gray-400">DRIVER A:</span>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 active-press">
+            <span className="text-gray-400 font-bold">DRIVER A:</span>
             <select
               value={driverAId}
               onChange={(e) => setDriverAId(e.target.value)}
@@ -168,8 +165,8 @@ export const DriverComparison: React.FC = () => {
           
           <span className="font-bold text-[#E10600]">VS</span>
           
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
-            <span className="text-gray-400">DRIVER B:</span>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 active-press">
+            <span className="text-gray-400 font-bold">DRIVER B:</span>
             <select
               value={driverBId}
               onChange={(e) => setDriverBId(e.target.value)}
@@ -184,8 +181,14 @@ export const DriverComparison: React.FC = () => {
       {/* Driver Spotlight Banners */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {[dA, dB].map((driver, idx) => (
-          <div key={driver.id} className="p-8 rounded-2xl glass-panel border border-white/10 flex items-center gap-6 relative overflow-hidden group">
-            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl ${idx === 0 ? 'bg-[#E10600]/20' : 'bg-cyan-500/20'}`} />
+          <motion.div 
+            key={driver.id} 
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            className="p-8 rounded-2xl glass-panel border border-white/10 flex items-center gap-6 relative overflow-hidden group hover:border-[#E10600]/25 transition-colors"
+          >
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl ${idx === 0 ? 'bg-[#E10600]/15' : 'bg-cyan-500/15'}`} />
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/5 overflow-hidden shrink-0 border border-white/10 flex items-center justify-center">
               <img 
                 src={driver.headshot} 
@@ -197,25 +200,26 @@ export const DriverComparison: React.FC = () => {
               />
             </div>
             <div className="space-y-1 z-10">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-wider">{driver.team}</div>
-              <h2 className="text-2xl font-black text-white group-hover:text-[#E10600] transition-colors">{driver.name}</h2>
+              <div className="text-[10px] font-mono text-gray-500 uppercase tracking-widest font-bold">{driver.team}</div>
+              <h2 className="text-2xl font-black text-white group-hover:text-[#E10600] transition-colors font-display uppercase tracking-tight">{driver.name}</h2>
               <div className="flex items-center gap-4 text-xs font-mono pt-2">
-                <span className="text-amber-400 font-bold flex items-center gap-1">
-                  <Trophy className="w-3.5 h-3.5" /> {driver.titles} WDC TITLES
+                <span className="text-[#FFB800] font-bold flex items-center gap-1">
+                  <Trophy className="w-3.5 h-3.5" /> {driver.titles} WDC
                 </span>
-                <span className="text-gray-300">{driver.wins} WINS</span>
+                <span className="text-gray-400 font-bold">{driver.wins} WINS</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* Radar Chart & Career Stats Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Radar Chart */}
-        <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4 flex flex-col items-center justify-center">
-          <h3 className="text-sm font-bold text-white font-mono uppercase self-start">PERFORMANCE RADAR MODEL</h3>
-          <div className="h-72 w-full flex items-center justify-center">
+        <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4 flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="absolute inset-0 carbon-pattern opacity-10 pointer-events-none" />
+          <h3 className="text-xs font-bold text-white font-mono uppercase tracking-wider self-start z-10">PERFORMANCE RADAR MODEL</h3>
+          <div className="h-72 w-full flex items-center justify-center z-10">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData}>
                 <PolarGrid stroke="rgba(255,255,255,0.08)" />
@@ -229,31 +233,37 @@ export const DriverComparison: React.FC = () => {
         </div>
 
         {/* Career Comparison Metrics */}
-        <div className="lg:col-span-2 p-6 rounded-2xl glass-panel border border-white/10 space-y-6">
-          <h3 className="text-sm font-bold text-white font-mono uppercase flex items-center gap-2">
+        <div className="lg:col-span-2 p-6 rounded-2xl glass-panel border border-white/10 space-y-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 carbon-pattern opacity-10 pointer-events-none" />
+          
+          <h3 className="text-xs font-bold text-white font-mono uppercase tracking-wider flex items-center gap-2 z-10">
             <Award className="w-4 h-4 text-cyan-400" /> CAREER METRICS HEAD TO HEAD
           </h3>
-          <div className="space-y-5">
+          <div className="space-y-6 z-10 relative">
             {[
               { label: 'WORLD CHAMPIONSHIPS', valA: dA.titles, valB: dB.titles },
               { label: 'CAREER WINS', valA: dA.wins, valB: dB.wins },
               { label: 'CAREER PODIUMS', valA: dA.podiums, valB: dB.podiums },
               { label: 'CURRENT STANDING POINTS', valA: dA.points, valB: dB.points }
             ].map((metric, idx) => (
-              <div key={idx} className="space-y-1.5 font-mono">
-                <div className="flex justify-between text-xs">
+              <div key={idx} className="space-y-2 font-mono">
+                <div className="flex justify-between text-xs font-bold">
                   <span className="text-[#E10600] font-black">{metric.valA}</span>
-                  <span className="text-gray-400">{metric.label}</span>
+                  <span className="text-gray-400 uppercase tracking-widest text-[9px]">{metric.label}</span>
                   <span className="text-cyan-400 font-black">{metric.valB}</span>
                 </div>
                 <div className="h-2 rounded-full bg-black/50 flex overflow-hidden">
-                  <div 
-                    style={{ width: `${(metric.valA / (metric.valA + metric.valB || 1)) * 100}%` }} 
-                    className="bg-[#E10600] transition-all duration-500" 
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(metric.valA / (metric.valA + metric.valB || 1)) * 100}%` }}
+                    transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+                    className="bg-[#E10600]" 
                   />
-                  <div 
-                    style={{ width: `${(metric.valB / (metric.valA + metric.valB || 1)) * 100}%` }} 
-                    className="bg-cyan-400 transition-all duration-500" 
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(metric.valB / (metric.valA + metric.valB || 1)) * 100}%` }}
+                    transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+                    className="bg-cyan-400" 
                   />
                 </div>
               </div>

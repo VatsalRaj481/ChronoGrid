@@ -16,12 +16,16 @@ export default {
           gold: '#FFB800',
           green: '#00E676',
           purple: '#9D00FF',
-          border: 'rgba(255, 255, 255, 0.08)'
+          border: 'rgba(255, 255, 255, 0.08)',
+          accent: '#FF1E27',
+          carbon: '#0c0d12',
+          titanium: '#1a1b23'
         }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
+        display: ['Rajdhani', 'sans-serif'],
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

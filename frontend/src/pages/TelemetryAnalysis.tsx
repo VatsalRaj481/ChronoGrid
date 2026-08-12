@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { F1API } from '../services/api';
 import { TelemetryPoint, Driver, Race } from '../types';
-import { Gauge, Play, Pause, RotateCcw, Zap, Sliders, Calendar } from 'lucide-react';
+import { Gauge, Play, Pause, RotateCcw, Zap } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { LoadingScreen } from '../components/layout/LoadingScreen';
 
 export const TelemetryAnalysis: React.FC = () => {
   const [driverA, setDriverA] = useState('VER');
@@ -68,7 +69,6 @@ export const TelemetryAnalysis: React.FC = () => {
           rpm: Math.round(pt.rpm * speedMultiplier)
         }));
 
-        // Removed the artificial 1% penalty (* 0.99) on Driver B's speed to allow accurate comparative testing
         const adjustedB = dataB.map(pt => ({
           ...pt,
           speed: Math.round(pt.speed * speedMultiplier),
@@ -118,7 +118,6 @@ export const TelemetryAnalysis: React.FC = () => {
     const spread = 5; // 5-pixel separation width to show comparison side-by-side
 
     // Time-Synchronized Dot Position matching:
-    // Finds the coordinate index where Driver B had elapsed the same time as Driver A has at the current index
     const targetTime = timesA[idx];
     let idxB = idx;
     let minDiff = Infinity;
@@ -131,7 +130,7 @@ export const TelemetryAnalysis: React.FC = () => {
     }
     const ptBTimeSync = telemetryB[idxB] || ptB;
     
-    // Calculate mathematically precise time delta (negative means Driver A is faster / ahead)
+    // Calculate precise time delta (negative means Driver A is faster)
     const timeDelta = timesA[idx] - timesB[idx];
 
     return {
@@ -150,7 +149,6 @@ export const TelemetryAnalysis: React.FC = () => {
       centerlineY: ptA.y,
       xA: ptA.x + normX * spread,
       yA: ptA.y + normY * spread,
-      // Render B using its time-synchronized index to show true time gap relative positions on track!
       xB: ptBTimeSync.x - normX * spread,
       yB: ptBTimeSync.y - normY * spread,
       timeDelta: timeDelta
@@ -213,7 +211,6 @@ export const TelemetryAnalysis: React.FC = () => {
     return `${selectedRace.locality.toUpperCase()} - TURN ${turnNum}`;
   };
 
-  // Determine total laps dynamically to include correct last lap in dropdown options
   const getCircuitLaps = () => {
     const selectedRace = races.find(r => r.round === selectedRound);
     if (!selectedRace) return 56;
@@ -238,7 +235,6 @@ export const TelemetryAnalysis: React.FC = () => {
     .filter(l => l <= totalLaps)
     .sort((a, b) => a - b);
 
-  // SVG dynamic track centerline coordinate string
   const trackCenterlineString = combinedData
     .map(pt => `${pt.centerlineX},${pt.centerlineY}`)
     .join(' ');
@@ -246,13 +242,15 @@ export const TelemetryAnalysis: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       {/* Studio Control Header */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-6 rounded-2xl glass-panel border border-white/10">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-mono text-cyan-400">
-            <Gauge className="w-4 h-4 animate-spin-slow" /> MULTI-DRIVER TELEMETRY COMPARISON ENGINE
+      <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-6 rounded-2xl glass-panel border border-white/10 overflow-hidden">
+        <div className="absolute top-0 left-0 h-full w-1.5 bg-cyan-400" />
+        
+        <div className="space-y-1 pl-2">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-cyan-400">
+            <Gauge className="w-4 h-4 text-cyan-400 animate-pulse-slow" /> MULTI-DRIVER TELEMETRY COMPARISON ENGINE
           </div>
-          <h1 className="text-3xl font-extrabold text-white">
-            TELEMETRY STUDIO <span className="text-gray-500 font-normal">| 2026 SEASON</span>
+          <h1 className="text-3xl font-black text-white font-display uppercase tracking-tight">
+            TELEMETRY STUDIO <span className="text-gray-500 font-light">| 2026 SEASON</span>
           </h1>
         </div>
 
@@ -265,7 +263,7 @@ export const TelemetryAnalysis: React.FC = () => {
               value={selectedRound}
               onChange={(e) => {
                 setSelectedRound(Number(e.target.value));
-                setLap(1); // Reset to lap 1 when track changes
+                setLap(1);
               }}
               className="bg-transparent text-white font-bold focus:outline-none cursor-pointer"
             >
@@ -317,7 +315,7 @@ export const TelemetryAnalysis: React.FC = () => {
             <select
               value={driverB}
               onChange={(e) => setDriverB(e.target.value)}
-              className="bg-transparent text-cyan-400 font-black focus:outline-none cursor-pointer"
+              className="bg-transparent text-[#00F0FF] font-black focus:outline-none cursor-pointer"
             >
               {drivers.map(d => (
                 <option key={d.driver_id} value={d.code} className="bg-[#121218] text-white font-mono">
@@ -331,14 +329,14 @@ export const TelemetryAnalysis: React.FC = () => {
           <div className="flex items-center gap-2 pl-2">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="p-2.5 rounded-xl bg-[#E10600] text-white hover:bg-red-700 transition-colors shadow-lg shadow-red-600/30"
+              className="p-2.5 rounded-xl bg-[#E10600] text-white hover:bg-red-700 transition-colors shadow-lg shadow-red-600/30 active-press"
               title="Play/Pause Telemetry Stream"
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </button>
             <button
               onClick={() => { setIsPlaying(false); setHoverIndex(0); }}
-              className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:text-white"
+              className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:text-white active-press"
               title="Reset Stream Progress"
             >
               <RotateCcw className="w-4 h-4" />
@@ -349,12 +347,7 @@ export const TelemetryAnalysis: React.FC = () => {
 
       {/* Loading state view */}
       {loading ? (
-        <div className="h-96 rounded-2xl glass-panel border border-white/10 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 rounded-full border-4 border-[#E10600] border-t-transparent animate-spin" />
-            <span className="font-mono text-xs tracking-widest text-gray-400">SYNCING LIVE TELEMETRY CHANNELS...</span>
-          </div>
-        </div>
+        <LoadingScreen isLoading={loading} />
       ) : (
         <>
           {/* Hover diagnostics display */}
@@ -397,7 +390,7 @@ export const TelemetryAnalysis: React.FC = () => {
               </div>
               <div className="p-4 rounded-xl glass-panel border border-white/10 space-y-1">
                 <div className="text-[10px] text-gray-400">DELTA TIME</div>
-                <div className="text-xl font-black text-emerald-400">
+                <div className="text-xl font-black text-emerald-400 font-display">
                   {activePoint.timeDelta > 0 ? `+${activePoint.timeDelta.toFixed(3)}s` : `${activePoint.timeDelta.toFixed(3)}s`}
                 </div>
               </div>
@@ -410,7 +403,7 @@ export const TelemetryAnalysis: React.FC = () => {
               {/* Speed graph */}
               <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-white font-bold flex items-center gap-2">
+                  <span className="text-white font-bold flex items-center gap-2 font-display uppercase tracking-wider">
                     <Zap className="w-4 h-4 text-[#E10600]" /> SPEED OVERLAP TRACE (KM/H)
                   </span>
                   <div className="flex items-center gap-4">
@@ -421,12 +414,12 @@ export const TelemetryAnalysis: React.FC = () => {
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart 
-                      data={combinedData}
-                      onMouseMove={(state) => {
-                        if (state && state.activeTooltipIndex !== undefined) {
-                          setHoverIndex(state.activeTooltipIndex);
-                        }
-                      }}
+                       data={combinedData}
+                       onMouseMove={(state) => {
+                         if (state && state.activeTooltipIndex !== undefined) {
+                           setHoverIndex(state.activeTooltipIndex);
+                         }
+                       }}
                     >
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis dataKey="distance" stroke="#666" fontSize={10} unit="m" />
@@ -442,7 +435,7 @@ export const TelemetryAnalysis: React.FC = () => {
               {/* Throttle and Brake graph */}
               <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
                 <div className="flex items-center justify-between text-xs font-mono text-gray-400">
-                  <span className="text-white font-bold">THROTTLE & BRAKE PEDAL ACTUATION</span>
+                  <span className="text-white font-bold font-display uppercase tracking-wider">THROTTLE & BRAKE PEDAL ACTUATION</span>
                   <div className="flex flex-wrap items-center gap-4">
                     <span className="flex items-center gap-1 text-[#E10600]"><span className="w-2 h-2 rounded-full bg-[#E10600]" /> {driverA} (THR)</span>
                     <span className="flex items-center gap-1 text-[#FFB800]"><span className="w-2.5 h-0.5 border-t-2 border-dashed border-[#FFB800]" /> {driverA} (BRK)</span>
@@ -474,7 +467,6 @@ export const TelemetryAnalysis: React.FC = () => {
                 <div className="text-xs font-mono text-gray-400 self-start">2D GPS TRACK POSITION</div>
                 <div className="relative w-48 h-48 flex items-center justify-center bg-black/40 rounded-full border border-white/10">
                   <svg className="w-40 h-40" viewBox="-150 -150 300 300">
-                    {/* Render the actual dynamic track layout shape instead of a static circle */}
                     {trackCenterlineString && (
                       <polyline
                         points={trackCenterlineString}
@@ -485,11 +477,9 @@ export const TelemetryAnalysis: React.FC = () => {
                         strokeLinejoin="round"
                       />
                     )}
-                    {/* Pulsing overlay for Driver A (Red, offset outwards) */}
                     {activePoint && (
                       <circle cx={activePoint.xA} cy={activePoint.yA} r="7" fill="#E10600" className="animate-pulse" />
                     )}
-                    {/* Pulsing overlay for Driver B (Cyan/Blue, offset inwards, time-synchronized) */}
                     {activePoint && (
                       <circle cx={activePoint.xB} cy={activePoint.yB} r="7" fill="#00F0FF" className="animate-pulse" />
                     )}

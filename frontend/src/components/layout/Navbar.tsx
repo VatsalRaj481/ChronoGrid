@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Gauge, GitCompare, Trophy, Flag, Cpu, User, Zap, Award } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Activity, Gauge, GitCompare, Trophy, Flag, Cpu, User, Award, Menu, X } from 'lucide-react';
 import { F1API } from '../../services/api';
 import { Race } from '../../types';
+import { Logo } from './Logo';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const [nextRace, setNextRace] = useState<Race | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     F1API.getRaces()
@@ -29,98 +32,102 @@ export const Navbar: React.FC = () => {
       .catch((err) => console.error('Error fetching races in Navbar:', err));
   }, []);
 
+  // Close collapsible menu on route transition
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: Activity },
-    { name: 'Telemetry Analysis', path: '/telemetry', icon: Gauge },
-    { name: 'Head to Head', path: '/comparison', icon: GitCompare },
+    { name: 'Telemetry', path: '/telemetry', icon: Gauge },
+    { name: 'Comparison', path: '/comparison', icon: GitCompare },
     { name: 'Drivers', path: '/drivers', icon: User },
     { name: 'Race Analysis', path: '/race-analysis', icon: Flag },
     { name: 'Circuits', path: '/circuits', icon: Trophy },
-    { name: 'Strategy Simulator', path: '/simulator', icon: Cpu },
+    { name: 'Simulator', path: '/simulator', icon: Cpu },
     { name: 'Champions', path: '/champions', icon: Award },
   ];
 
+  const isHomePage = location.pathname === '/';
+  const showNextGPTicker = !isHomePage && nextRace;
+
   return (
-    <header className="sticky top-0 z-50 px-4 py-3 bg-[#070709]/80 backdrop-blur-xl border-b border-white/10">
+    <header className="sticky top-0 z-50 px-4 py-3 bg-[#070709]/75 backdrop-blur-xl border-b border-white/10 relative">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#E10600] to-[#FF5500] flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
-            <Zap className="w-6 h-6 text-white fill-white" />
-          </div>
-          <div>
-            <span className="text-xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400">
-              CHRONO<span className="text-[#E10600]">GRID</span>
-            </span>
-            <span className="block text-[9px] font-mono tracking-widest text-cyan-400 uppercase">
-              F1 Telemetry Engine v2.4
-            </span>
-          </div>
+        {/* Brand Logo Component (Left) */}
+        <Link to="/" className="active-press">
+          <Logo />
         </Link>
 
-        {/* Live Race Telemetry Status Ticker */}
-        <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-full bg-black/50 border border-white/10 text-xs font-mono">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-gray-400">NEXT GP:</span>
-          <span className="text-white font-semibold">
-            {nextRace ? nextRace.race_name.toUpperCase() : 'LOADING...'}
-          </span>
-          <span className="text-gray-600">|</span>
-          <span className="text-cyan-400">
-            {nextRace ? nextRace.locality.toUpperCase() : 'LOADING...'}
-          </span>
-        </div>
-
-        {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => {
-            const Icon = link.icon;
-            const isActive = location.pathname === link.path;
-            return (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all ${
-                  isActive
-                    ? 'bg-[#E10600]/15 text-[#E10600] border border-[#E10600]/40 shadow-sm'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#E10600]' : 'text-gray-400'}`} />
-                {link.name}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Action Controls */}
-        <div className="flex items-center gap-3">
-          <Link
-            to="/dashboard"
-            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#E10600] to-[#B30500] text-white text-xs font-semibold hover:shadow-lg hover:shadow-red-600/40 transition-all active:scale-95"
-          >
-            Launch Hub
-          </Link>
-        </div>
-      </div>
-
-      {/* Mobile Nav Drawer */}
-      <div className="md:hidden flex items-center justify-around py-2 mt-2 border-t border-white/5 text-[10px]">
-        {navLinks.slice(0, 5).map((link) => {
-          const Icon = link.icon;
-          const isActive = location.pathname === link.path;
-          return (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`flex flex-col items-center gap-1 ${isActive ? 'text-[#E10600]' : 'text-gray-400'}`}
+        {/* Right side items (Next GP Ticker & Hamburger Toggle Button) */}
+        <div className="flex items-center gap-4">
+          {showNextGPTicker && (
+            <motion.div 
+              initial={{ opacity: 0, x: 4 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="hidden sm:flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-black/60 border border-white/10 text-[10px] sm:text-[11px] font-mono leading-none"
             >
-              <Icon className="w-4 h-4" />
-              <span>{link.name.split(' ')[0]}</span>
-            </Link>
-          );
-        })}
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-slow" />
+              <span className="text-gray-400 font-bold uppercase">NEXT GP:</span>
+              <span className="text-white font-black">
+                {nextRace.race_name.toUpperCase()}
+              </span>
+              <span className="text-gray-700">|</span>
+              <span className="text-cyan-400 font-black">
+                {nextRace.locality.toUpperCase()}
+              </span>
+            </motion.div>
+          )}
+
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all active-press"
+            aria-label="Toggle navigation menu"
+          >
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
+
+      {/* Animated Dropdown / Collapsible Drawer (Vertical Stack layout aligned to the right) */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 250, damping: 25 }}
+            className="absolute top-full right-4 w-72 md:w-80 bg-[#070709]/95 backdrop-blur-2xl border border-white/10 overflow-hidden z-40 shadow-2xl shadow-black/80 rounded-2xl mt-2"
+          >
+            <div className="px-5 py-6 flex flex-col gap-2.5">
+              {navLinks.map((link, idx) => {
+                const Icon = link.icon;
+                const isActive = location.pathname === link.path;
+                return (
+                  <motion.div
+                    key={link.path}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ type: 'spring', delay: idx * 0.03, stiffness: 200, damping: 20 }}
+                  >
+                    <Link
+                      to={link.path}
+                      className={`flex items-center gap-4 p-3.5 rounded-xl border text-xs font-bold uppercase tracking-wider transition-colors duration-200 active-press ${
+                        isActive 
+                          ? 'bg-[#E10600]/10 border-[#E10600]/40 text-white shadow-lg shadow-[#E10600]/5' 
+                          : 'bg-white/5 border-white/5 text-gray-400 hover:text-white hover:border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-[#E10600]' : 'text-gray-400'}`} />
+                      <span className="font-display">{link.name}</span>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

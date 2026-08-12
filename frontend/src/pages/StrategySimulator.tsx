@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Cpu, Play, Sliders, Shield, Zap, RefreshCw, Sun, CloudRain } from 'lucide-react';
+import { Cpu, Play, Sliders, Zap, RefreshCw, Sun, CloudRain } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Race, Constructor } from '../types';
+import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CircuitInfo {
   laps: number;
@@ -242,26 +244,21 @@ export const StrategySimulator: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-[#E10600] border-t-transparent animate-spin" />
-          <span className="font-mono text-xs tracking-widest text-gray-400">INITIALIZING AI SIMULATOR ENGINE...</span>
-        </div>
-      </div>
-    );
+    return <LoadingScreen isLoading={loading} />;
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       {/* Header Banner */}
-      <div className="p-6 rounded-2xl glass-panel border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-mono text-purple-400">
-            <Cpu className="w-4 h-4 animate-pulse" /> AI PIT STRATEGY ENGINE
+      <div className="relative p-6 rounded-2xl glass-panel border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-hidden">
+        <div className="absolute top-0 left-0 h-full w-1.5 bg-purple-500" />
+        
+        <div className="space-y-1 pl-2">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-purple-400">
+            <Cpu className="w-4 h-4 text-purple-400 animate-pulse-slow" /> AI PIT STRATEGY ENGINE
           </div>
-          <h1 className="text-3xl font-extrabold text-white">
-            STRATEGY SIMULATOR <span className="text-gray-500 font-normal">| 2026 SEASON</span>
+          <h1 className="text-3xl font-black text-white font-display uppercase tracking-tight">
+            STRATEGY SIMULATOR <span className="text-gray-500 font-light">| 2026 SEASON</span>
           </h1>
         </div>
       </div>
@@ -269,7 +266,7 @@ export const StrategySimulator: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Simulation Controls */}
         <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-6">
-          <h3 className="text-sm font-bold text-white font-mono uppercase flex items-center gap-2">
+          <h3 className="text-xs font-bold text-white font-mono uppercase tracking-wider flex items-center gap-2">
             <Sliders className="w-4 h-4 text-[#E10600]" /> PARAMETERS
           </h3>
 
@@ -277,11 +274,11 @@ export const StrategySimulator: React.FC = () => {
             {/* Team and Track Selectors */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-gray-400">TEAM / CONSTRUCTOR</label>
+                <label className="text-gray-500 font-bold uppercase tracking-wider text-[10px]">TEAM / CONSTRUCTOR</label>
                 <select
                   value={selectedConstructor}
                   onChange={(e) => setSelectedConstructor(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#E10600] transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#E10600] transition-colors cursor-pointer active-press"
                 >
                   {constructors.map(c => (
                     <option key={c.team_id} value={c.team_id} className="bg-[#070709] text-white">
@@ -292,11 +289,11 @@ export const StrategySimulator: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-gray-400">CIRCUIT / TRACK</label>
+                <label className="text-gray-500 font-bold uppercase tracking-wider text-[10px]">CIRCUIT / TRACK</label>
                 <select
                   value={selectedRound}
                   onChange={(e) => setSelectedRound(Number(e.target.value))}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#E10600] transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-[#E10600] transition-colors cursor-pointer active-press"
                 >
                   {races.map(r => (
                     <option key={r.round} value={r.round} className="bg-[#070709] text-white">
@@ -309,7 +306,7 @@ export const StrategySimulator: React.FC = () => {
 
             {/* Weather selector */}
             <div className="space-y-2">
-              <label className="text-gray-400">WEATHER CONDITIONS</label>
+              <label className="text-gray-500 font-bold uppercase tracking-wider text-[10px]">WEATHER CONDITIONS</label>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: 'DRY', name: 'Dry', icon: Sun, color: 'text-amber-400' },
@@ -321,8 +318,8 @@ export const StrategySimulator: React.FC = () => {
                       key={w.id}
                       type="button"
                       onClick={() => setWeather(w.id as 'DRY' | 'WET')}
-                      className={`py-2.5 rounded-xl border font-bold flex items-center justify-center gap-2 transition-all ${
-                        weather === w.id ? 'bg-[#E10600]/15 text-[#E10600] border-[#E10600]/50 shadow-sm' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                      className={`py-2.5 rounded-xl border font-bold flex items-center justify-center gap-2 transition-all active-press ${
+                        weather === w.id ? 'bg-[#E10600]/15 text-[#E10600] border-[#E10600]/50 shadow-sm font-black' : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
                       }`}
                     >
                       <Icon className={`w-4 h-4 ${w.color}`} />
@@ -335,7 +332,7 @@ export const StrategySimulator: React.FC = () => {
 
             {/* Compound selector */}
             <div className="space-y-2">
-              <label className="text-gray-400">STARTING TIRE COMPOUND</label>
+              <label className="text-gray-500 font-bold uppercase tracking-wider text-[10px]">STARTING TIRE COMPOUND</label>
               <div className="grid grid-cols-3 gap-2">
                 {weather === 'DRY' ? (
                   ['SOFT', 'MEDIUM', 'HARD'].map(c => (
@@ -343,11 +340,11 @@ export const StrategySimulator: React.FC = () => {
                       key={c}
                       type="button"
                       onClick={() => setCompound(c)}
-                      className={`py-2.5 rounded-xl border font-bold transition-all ${
+                      className={`py-2.5 rounded-xl border font-black transition-all active-press ${
                         compound === c 
-                          ? c === 'SOFT' ? 'bg-[#E10600] text-white border-[#E10600]'
-                            : c === 'MEDIUM' ? 'bg-[#FFB800] text-black border-[#FFB800]'
-                            : 'bg-white text-black border-white'
+                          ? c === 'SOFT' ? 'bg-[#E10600] text-white border-[#E10600] drop-shadow-[0_0_8px_rgba(225,6,0,0.4)]'
+                            : c === 'MEDIUM' ? 'bg-[#FFB800] text-black border-[#FFB800] drop-shadow-[0_0_8px_rgba(255,184,0,0.4)]'
+                            : 'bg-white text-black border-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'
                           : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
                       }`}
                     >
@@ -360,10 +357,10 @@ export const StrategySimulator: React.FC = () => {
                       key={c}
                       type="button"
                       onClick={() => setCompound(c)}
-                      className={`py-2.5 rounded-xl border font-bold transition-all ${
+                      className={`py-2.5 rounded-xl border font-black transition-all active-press ${
                         compound === c 
-                          ? c === 'INTERMEDIATE' ? 'bg-[#00E676] text-black border-[#00E676]'
-                            : 'bg-[#1A73E8] text-white border-[#1A73E8]'
+                          ? c === 'INTERMEDIATE' ? 'bg-[#00E676] text-black border-[#00E676] drop-shadow-[0_0_8px_rgba(0,230,118,0.4)]'
+                            : 'bg-[#1A73E8] text-white border-[#1A73E8] drop-shadow-[0_0_8px_rgba(26,115,232,0.4)]'
                           : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
                       }`}
                     >
@@ -376,9 +373,9 @@ export const StrategySimulator: React.FC = () => {
 
             {/* Target Pit Stop Lap */}
             <div className="space-y-2">
-              <div className="flex justify-between text-gray-400">
+              <div className="flex justify-between text-gray-400 text-[10px] font-bold">
                 <span>TARGET PIT STOP LAP</span>
-                <span className="text-cyan-400 font-bold">LAP {pitLap} / {totalLaps}</span>
+                <span className="text-cyan-400 font-black">LAP {pitLap} / {totalLaps}</span>
               </div>
               <input
                 type="range"
@@ -394,7 +391,7 @@ export const StrategySimulator: React.FC = () => {
           <button
             onClick={handleSimulate}
             disabled={simulating}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg hover:shadow-purple-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg hover:shadow-purple-600/30 hover:scale-[1.02] active-press transition-all disabled:opacity-50"
           >
             {simulating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
             {simulating ? 'RUNNING MONTE CARLO MODEL...' : 'RUN STRATEGY SIMULATION'}
@@ -402,39 +399,50 @@ export const StrategySimulator: React.FC = () => {
         </div>
 
         {/* Simulation Output Display */}
-        <div className="lg:col-span-2 p-6 rounded-2xl glass-panel border border-white/10 space-y-6 flex flex-col justify-between min-h-[400px]">
-          <div className="space-y-4 h-full flex flex-col justify-between">
-            <h3 className="text-sm font-bold text-white font-mono uppercase">PROJECTED RACE OUTCOME</h3>
-            {result ? (
-              <div className="grid grid-cols-2 gap-4 font-mono h-full mt-4">
-                <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-2 flex flex-col justify-center">
-                  <div className="text-[10px] text-gray-400">UNDERCUT DELTA POTENTIAL</div>
-                  <div className={`text-3xl font-black ${result.undercutGain.startsWith('-') ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {result.undercutGain}
+        <div className="lg:col-span-2 p-6 rounded-2xl glass-panel border border-white/10 space-y-6 flex flex-col justify-between min-h-[400px] relative overflow-hidden">
+          <div className="absolute inset-0 carbon-pattern opacity-10 pointer-events-none" />
+          
+          <div className="space-y-4 h-full flex flex-col justify-between z-10 relative">
+            <h3 className="text-xs font-bold text-white font-mono uppercase tracking-wider">PROJECTED RACE OUTCOME</h3>
+            
+            <AnimatePresence mode="wait">
+              {result ? (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono h-full mt-4"
+                >
+                  <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-2 flex flex-col justify-center">
+                    <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">UNDERCUT DELTA POTENTIAL</div>
+                    <div className={`text-3xl font-black font-display tracking-tight ${result.undercutGain.startsWith('-') ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {result.undercutGain}
+                    </div>
+                  </div>
+                  <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-2 flex flex-col justify-center">
+                    <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">PROBABLE FINISH RESULT</div>
+                    <div className="text-3xl font-black text-amber-400 font-display uppercase tracking-tight">{result.finishPosProbability}</div>
+                  </div>
+                  <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-2 flex flex-col justify-center">
+                    <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">TOTAL RACE TIME</div>
+                    <div className="text-xl font-bold text-white font-display">{result.raceTime}</div>
+                  </div>
+                  <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-2 flex flex-col justify-center">
+                    <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">TIRE DEGRADATION AT PIT</div>
+                    <div className="text-xl font-bold text-cyan-400 font-display">{result.wearAtPit} WEAR</div>
+                  </div>
+                </motion.div>
+              ) : (
+                <div className="flex-grow flex items-center justify-center border border-white/5 rounded-xl bg-black/40 p-12">
+                  <div className="text-center font-mono text-xs text-gray-500 max-w-sm space-y-2">
+                    <Zap className="w-8 h-8 text-purple-400 mx-auto animate-pulse mb-2" />
+                    <p className="text-gray-300 font-bold uppercase tracking-wider text-[11px]">AERO-STRATEGY SIMULATOR READY</p>
+                    <p className="leading-relaxed">Adjust the constructor team, track weather, compound tyre type, and target pit stop lap, then run simulation to execute AI predictive models.</p>
                   </div>
                 </div>
-                <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-2 flex flex-col justify-center">
-                  <div className="text-[10px] text-gray-400">PROBABLE FINISH RESULT</div>
-                  <div className="text-3xl font-black text-amber-400">{result.finishPosProbability}</div>
-                </div>
-                <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-2 flex flex-col justify-center">
-                  <div className="text-[10px] text-gray-400">TOTAL RACE TIME</div>
-                  <div className="text-xl font-bold text-white">{result.raceTime}</div>
-                </div>
-                <div className="p-6 rounded-xl bg-white/5 border border-white/10 space-y-2 flex flex-col justify-center">
-                  <div className="text-[10px] text-gray-400">TIRE DEGRADATION AT PIT</div>
-                  <div className="text-xl font-bold text-cyan-400">{result.wearAtPit} WEAR</div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex-grow flex items-center justify-center border border-white/5 rounded-xl bg-black/40 p-12">
-                <div className="text-center font-mono text-xs text-gray-500 max-w-sm space-y-2">
-                  <Zap className="w-8 h-8 text-purple-400 mx-auto animate-pulse mb-2" />
-                  <p className="text-gray-300 font-bold">AERO-STRATEGY SIMULATOR READY</p>
-                  <p>Adjust the constructor team, track weather, compound tyre type, and target pit stop lap, then run simulation to execute AI predictive models.</p>
-                </div>
-              </div>
-            )}
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

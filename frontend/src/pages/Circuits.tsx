@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Compass, Trophy, Zap, MapPin } from 'lucide-react';
+import { Compass, Trophy, MapPin } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Race } from '../types';
+import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { motion } from 'framer-motion';
 
 interface CircuitDetails {
   name: string;
@@ -59,14 +61,7 @@ export const Circuits: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-[#E10600] border-t-transparent animate-spin" />
-          <span className="font-mono text-xs tracking-widest text-gray-400">LOADING CIRCUIT DATA...</span>
-        </div>
-      </div>
-    );
+    return <LoadingScreen isLoading={loading} />;
   }
 
   // Get unique circuits dynamically from the active schedule
@@ -115,55 +110,63 @@ export const Circuits: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       {/* Header Banner */}
-      <div className="p-6 rounded-2xl glass-panel border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-mono text-cyan-400">
-            <Compass className="w-4 h-4 animate-spin-slow" /> WORLD CIRCUIT DIRECTORY
+      <div className="relative p-6 rounded-2xl glass-panel border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-hidden">
+        <div className="absolute top-0 left-0 h-full w-1.5 bg-[#E10600]" />
+        
+        <div className="space-y-1 pl-2">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-[#E10600]">
+            <Compass className="w-4 h-4 text-[#E10600]" /> WORLD CIRCUIT DIRECTORY
           </div>
-          <h1 className="text-3xl font-extrabold text-white">
-            RACE CIRCUITS <span className="text-gray-500 font-normal">| 2026 SEASON</span>
+          <h1 className="text-3xl font-black text-white font-display uppercase tracking-tight">
+            RACE CIRCUITS <span className="text-gray-500 font-light">| 2026 SEASON</span>
           </h1>
         </div>
-        <div className="text-xs font-mono text-gray-400">
-          TOTAL TRACKS ON CALENDAR: {circuitList.length}
+        <div className="text-xs font-mono text-gray-400 font-bold uppercase tracking-wider">
+          Tracks on calendar: {circuitList.length}
         </div>
       </div>
 
       {/* Grid List */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {circuitList.map((c) => (
-          <div key={c.id} className="p-6 sm:p-8 rounded-2xl glass-panel border border-white/10 space-y-6 hover:border-[#E10600]/40 transition-all group flex flex-col md:flex-row gap-6 items-center">
+        {circuitList.map((c, idx) => (
+          <motion.div 
+            key={c.id} 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', delay: idx * 0.04, stiffness: 180, damping: 18 }}
+            className="p-6 sm:p-8 rounded-2xl glass-panel border border-white/10 space-y-6 hover:border-[#E10600]/40 transition-colors group flex flex-col md:flex-row gap-6 items-center active-press"
+          >
             <div className="flex-grow space-y-6 w-full">
               <div className="flex justify-between items-start">
                 <div>
-                  <span className="flex items-center gap-1 text-xs font-mono text-[#E10600]">
-                    <MapPin className="w-3.5 h-3.5" /> {c.location}
+                  <span className="flex items-center gap-1 text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider">
+                    <MapPin className="w-3.5 h-3.5 text-cyan-400" /> {c.location}
                   </span>
-                  <h3 className="text-2xl font-black text-white mt-1 group-hover:text-[#E10600] transition-colors">{c.name}</h3>
+                  <h3 className="text-2xl font-black text-white mt-1 group-hover:text-[#E10600] transition-colors font-display uppercase tracking-tight">{c.name}</h3>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 font-mono text-xs text-cyan-400 shrink-0">
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 font-mono text-[10px] font-bold text-gray-400 tracking-wider uppercase shrink-0">
                   {c.laps} LAPS
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-4 font-mono text-xs p-4 rounded-xl bg-black/40 border border-white/5 text-center">
                 <div>
-                  <div className="text-gray-400">LENGTH</div>
+                  <div className="text-gray-500 font-bold">LENGTH</div>
                   <div className="font-bold text-white mt-1">{c.length}</div>
                 </div>
                 <div>
-                  <div className="text-gray-400">TURNS</div>
-                  <div className="font-bold text-white mt-1">{c.turns} TURNS</div>
+                  <div className="text-gray-500 font-bold">TURNS</div>
+                  <div className="font-bold text-white mt-1">{c.turns} T</div>
                 </div>
                 <div>
-                  <div className="text-gray-400">DRS ZONES</div>
+                  <div className="text-gray-500 font-bold">DRS ZONES</div>
                   <div className="font-bold text-amber-400 mt-1">{c.drs} ZONES</div>
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-between text-xs font-mono text-gray-300">
-                <span className="flex items-center gap-1.5"><Trophy className="w-4 h-4 text-[#FFB800]" /> LAP RECORD:</span>
-                <span className="font-bold text-white text-right">{c.record}</span>
+              <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-gray-300">
+                <span className="flex items-center gap-1.5 text-gray-500 font-bold uppercase tracking-wider"><Trophy className="w-4 h-4 text-[#FFB800]" /> LAP RECORD:</span>
+                <span className="font-black text-white text-right">{c.record}</span>
               </div>
             </div>
 
@@ -178,7 +181,7 @@ export const Circuits: React.FC = () => {
                 }}
               />
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

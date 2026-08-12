@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Trophy, Search, Star, Medal, User, Award, Shield } from 'lucide-react';
+import { Trophy, Search, Star, Award, Shield, User } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Champion } from '../types';
+import { LoadingScreen } from '../components/layout/LoadingScreen';
+import { motion } from 'framer-motion';
 
 export const Champions: React.FC = () => {
   const [champions, setChampions] = useState<Champion[]>([]);
@@ -29,14 +31,7 @@ export const Champions: React.FC = () => {
   );
 
   if (loading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-[#E10600] border-t-transparent animate-spin" />
-          <span className="font-mono text-xs tracking-widest text-gray-400">SYNCING CHAMPIONS ARCHIVE...</span>
-        </div>
-      </div>
-    );
+    return <LoadingScreen isLoading={loading} />;
   }
 
   // Count titles per driver for a stats widget
@@ -51,18 +46,20 @@ export const Champions: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       {/* Header Panel */}
-      <div className="p-6 rounded-2xl glass-panel border border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-mono text-[#FFB800]">
-            <Trophy className="w-4 h-4 animate-pulse" /> HALL OF FAME
+      <div className="relative p-6 rounded-2xl glass-panel border border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 overflow-hidden">
+        <div className="absolute top-0 left-0 h-full w-1.5 bg-[#FFB800]" />
+        
+        <div className="space-y-1 pl-2">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-[#FFB800]">
+            <Trophy className="w-4 h-4 text-[#FFB800]" /> HALL OF FAME
           </div>
-          <h1 className="text-3xl font-extrabold text-white">
-            WORLD CHAMPIONS <span className="text-gray-500 font-normal">| HISTORICAL DIRECTORY</span>
+          <h1 className="text-3xl font-black text-white font-display uppercase tracking-tight">
+            WORLD CHAMPIONS <span className="text-gray-500 font-light">| HISTORICAL DIRECTORY</span>
           </h1>
         </div>
 
         {/* Dynamic Search Bar */}
-        <div className="relative w-full lg:w-80 font-mono text-xs">
+        <div className="relative w-full lg:w-80 font-mono text-xs active-press">
           <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
             <Search className="w-4 h-4" />
           </span>
@@ -71,7 +68,7 @@ export const Champions: React.FC = () => {
             placeholder="Search by year, driver, constructor..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white focus:outline-none focus:border-[#E10600] focus:ring-1 focus:ring-[#E10600] transition-all"
+            className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white focus:outline-none focus:border-[#E10600] focus:ring-1 focus:ring-[#E10600] transition-all font-sans"
           />
         </div>
       </div>
@@ -81,16 +78,18 @@ export const Champions: React.FC = () => {
         
         {/* Left Column: Legend Drivers Sidebar */}
         <div className="space-y-6 xl:col-span-1">
-          <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4">
-            <h3 className="text-xs font-bold font-mono text-gray-400 uppercase flex items-center gap-1.5">
+          <div className="p-6 rounded-2xl glass-panel border border-white/10 space-y-4 relative overflow-hidden">
+            <div className="absolute inset-0 carbon-pattern opacity-5 pointer-events-none" />
+            
+            <h3 className="text-xs font-bold font-mono text-gray-400 uppercase tracking-wider flex items-center gap-1.5 z-10 relative">
               <Star className="w-4 h-4 text-[#FFB800] fill-[#FFB800]" /> F1 ALL-TIME LEGENDS
             </h3>
-            <div className="divide-y divide-white/5 font-mono text-xs">
+            <div className="divide-y divide-white/5 font-mono text-xs z-10 relative">
               {legendDrivers.map(([name, count], idx) => (
                 <div key={idx} className="py-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-500">#{idx + 1}</span>
-                    <span className="font-bold text-white">{name}</span>
+                    <span className="text-gray-500 font-bold">#{idx + 1}</span>
+                    <span className="font-black text-white">{name}</span>
                   </div>
                   <span className="px-2.5 py-0.5 rounded-full bg-[#FFB800]/10 text-[#FFB800] border border-[#FFB800]/20 font-black">
                     {count} titles
@@ -98,27 +97,38 @@ export const Champions: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div className="text-[10px] text-gray-500 leading-relaxed pt-2 border-t border-white/5">
-              Showing the top drivers ranked by total Formula 1 World Drivers' Championship titles since 1950.
+            <div className="text-[10px] text-gray-500 leading-relaxed pt-3 border-t border-white/5 font-mono z-10 relative font-semibold uppercase">
+              RANKED BY TOTAL DRIVERS' CHAMPIONSHIPS SINCE 1950.
             </div>
           </div>
         </div>
 
         {/* Right 3 Columns: Grid of Season Champion Cards */}
         <div className="xl:col-span-3 space-y-6">
-          <div className="flex justify-between items-center text-xs font-mono text-gray-400">
+          <div className="flex justify-between items-center text-xs font-mono text-gray-500 font-bold uppercase tracking-wider">
             <span>SHOWING {filteredChampions.length} SEASONS</span>
-            {search && <button onClick={() => setSearch('')} className="text-[#E10600] hover:underline">Clear Search</button>}
+            {search && (
+              <button 
+                onClick={() => setSearch('')} 
+                className="text-[#E10600] hover:underline active-press uppercase"
+              >
+                Clear Search
+              </button>
+            )}
           </div>
 
           {filteredChampions.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredChampions.map((c) => {
+              {filteredChampions.map((c, idx) => {
                 const isMultiChampion = titleCounts[c.driver_name] >= 3;
                 return (
-                  <div 
+                  <motion.div 
                     key={c.season} 
-                    className={`p-6 rounded-2xl glass-panel border transition-all group flex flex-col justify-between hover:scale-[1.02] ${
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: 'spring', delay: idx * 0.03, stiffness: 200, damping: 18 }}
+                    whileHover={{ y: -4 }}
+                    className={`p-6 rounded-2xl glass-panel border transition-colors group flex flex-col justify-between active-press ${
                       isMultiChampion 
                         ? 'border-[#FFB800]/30 hover:border-[#FFB800]/60 shadow-lg shadow-[#FFB800]/5' 
                         : 'border-white/10 hover:border-[#E10600]/40'
@@ -127,7 +137,7 @@ export const Champions: React.FC = () => {
                     <div className="space-y-4">
                       {/* Season & Legend Badge */}
                       <div className="flex justify-between items-center">
-                        <span className={`text-2xl font-black font-mono tracking-tight ${isMultiChampion ? 'text-[#FFB800]' : 'text-white'}`}>
+                        <span className={`text-2xl font-black font-mono tracking-tight font-display ${isMultiChampion ? 'text-[#FFB800]' : 'text-white'}`}>
                           {c.season}
                         </span>
                         {isMultiChampion && (
@@ -157,10 +167,10 @@ export const Champions: React.FC = () => {
                         </div>
 
                         <div className="space-y-1">
-                          <h4 className="text-base font-black text-white group-hover:text-[#E10600] transition-colors line-clamp-1">
+                          <h4 className="text-base font-black text-white group-hover:text-[#E10600] font-display uppercase tracking-tight transition-colors line-clamp-1 leading-tight">
                             {c.driver_name}
                           </h4>
-                          <p className="text-xs text-gray-400 font-mono flex items-center gap-1">
+                          <p className="text-[10px] text-gray-400 font-mono flex items-center gap-1 font-bold uppercase tracking-wider">
                             🌍 {c.nationality}
                           </p>
                         </div>
@@ -170,13 +180,13 @@ export const Champions: React.FC = () => {
                       <div className="p-3 rounded-xl bg-black/40 border border-white/5 font-mono text-xs flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Shield className="w-4 h-4 text-cyan-400" />
-                          <span className="text-gray-300 font-bold">{c.constructor_name}</span>
+                          <span className="text-gray-300 font-black uppercase text-[10px] tracking-wider">{c.constructor_name}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Stats details */}
-                    <div className="pt-4 mt-4 border-t border-white/5 grid grid-cols-2 gap-4 font-mono text-[11px] text-gray-400">
+                    <div className="pt-4 mt-4 border-t border-white/5 grid grid-cols-2 gap-4 font-mono text-[10px] text-gray-500 font-bold">
                       <div>
                         <div>SEASON WINS</div>
                         <div className="text-sm font-black text-white mt-0.5">{c.wins} WINS</div>
@@ -186,7 +196,7 @@ export const Champions: React.FC = () => {
                         <div className="text-sm font-black text-white mt-0.5">{c.points} PTS</div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
