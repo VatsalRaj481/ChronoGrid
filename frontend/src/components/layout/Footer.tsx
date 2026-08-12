@@ -59,7 +59,7 @@ export const Footer: React.FC = () => {
       
       <div className="relative z-10 max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center text-gray-400 gap-4 text-[11px]">
         <p>© 2026 ChronoGrid F1 Intelligence Platform. All rights reserved.</p>
-        <p className="font-mono text-[10px] text-gray-400 tracking-wider">DESIGN LANGUAGE: APPLE x FORMULA 1</p>
+        <p className="font-mono text-[10px] text-gray-400 tracking-wider">DESIGN LANGUAGE: MOTORSPORT FLUID DESIGN SYSTEM</p>
       </div>
     </footer>
   );

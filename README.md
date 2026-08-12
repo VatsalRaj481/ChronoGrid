@@ -9,7 +9,7 @@
 [![TailwindCSS](https://img.shields.io/badge/Styling-Tailwind_3.4-38B2AC?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
 [![OpenF1](https://img.shields.io/badge/Data-OpenF1_API-E10600?style=for-the-badge)](https://openf1.org/)
 
-*Engineered with design inspiration from Apple Design Guidelines, Porsche paddock interfaces, and official Formula 1 telemetry telemetry systems.*
+*Engineered with design inspiration from Porsche paddock interfaces and official Formula 1 telemetry systems.*
 
 ---
 
@@ -21,11 +21,11 @@
 
 ---
 
-## 🎨 Design Language: Apple x Formula 1
+## 🎨 Design Language: Formula 1 Motorsport Theme
 
 ChronoGrid is built around a bespoke **Dark Motorsport Paddock** aesthetic:
 - **Carbon Grid Motif**: Custom-styled checkered grids, asphalt texture layers (`carbon-pattern`), and high-contrast typography (using Google Fonts like `F1 Bold` / `Outfit` and `JetBrains Mono` for data parameters).
-- **Apple Fluid Motion**: Smooth UI interactions using Framer Motion springs with F1-inspired physics properties:
+- **Motorsport Fluid Motion**: Smooth UI interactions using Framer Motion springs with F1-inspired physics properties:
   - High response rate with critical damping parameters (`stiffness: 250`, `damping: 25` to prevent overshoot).
   - Tactile micro-animations on interactive sliders, dropdowns, and button clicks (`active-press`).
   - Native support for `prefers-reduced-motion` to keep layouts accessible.
