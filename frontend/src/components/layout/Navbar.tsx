@@ -108,17 +108,23 @@ export const Navbar: React.FC = () => {
                     key={link.path}
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ type: 'spring', delay: idx * 0.03, stiffness: 200, damping: 20 }}
+                    whileHover={{ x: 6, transition: { type: 'spring', stiffness: 300, damping: 20, delay: 0 } }}
+                    transition={{ 
+                      type: 'spring', 
+                      stiffness: 200, 
+                      damping: 20,
+                      delay: idx * 0.03
+                    }}
                   >
                     <Link
                       to={link.path}
-                      className={`flex items-center gap-4 p-3.5 rounded-xl border text-xs font-bold uppercase tracking-wider transition-colors duration-200 active-press ${
+                      className={`group flex items-center gap-4 p-3.5 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all duration-200 active-press ${
                         isActive 
-                          ? 'bg-[#E10600]/10 border-[#E10600]/40 text-white shadow-lg shadow-[#E10600]/5' 
-                          : 'bg-white/5 border-white/5 text-gray-400 hover:text-white hover:border-white/10 hover:bg-white/10'
+                          ? 'bg-[#E10600]/10 border-[#E10600]/40 text-white shadow-lg shadow-[#E10600]/5 hover:bg-[#E10600] hover:border-[#E10600]' 
+                          : 'bg-white/5 border-white/5 text-gray-400 hover:text-white hover:border-[#E10600] hover:bg-[#E10600]'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-[#E10600]' : 'text-gray-400'}`} />
+                      <Icon className={`w-4 h-4 transition-colors duration-200 ${isActive ? 'text-[#E10600] group-hover:text-white' : 'text-gray-400 group-hover:text-white'}`} />
                       <span className="font-display">{link.name}</span>
                     </Link>
                   </motion.div>
