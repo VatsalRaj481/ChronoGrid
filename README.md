@@ -36,7 +36,7 @@ ChronoGrid is built around a bespoke **Dark Motorsport Paddock** aesthetic:
 
 ### ⏱️ 1. High-Precision Telemetry Studio (`/telemetry`)
 - **Synchronized Speed Traces**: Overlay telemetry traces of any two drivers turn-by-turn.
-- **Pedal & Gear Actuation**: Real-time visualization of Throttle %, Brake pressure %, RPM, Gear shifts, and DRS activation.
+- **Pedal & Gear Actuation**: Real-time visualization of Throttle %, Brake pressure %, RPM, Gear shifts, and Active Aerodynamics mode.
 - **Interactive Playback Controls**: Replay lap telemetry in real time with synchronized data cards.
 - **2D GPS Track Position**: Interactive minimap displaying real-time coordinates mapped onto circuit layouts.
 
@@ -56,7 +56,7 @@ ChronoGrid is built around a bespoke **Dark Motorsport Paddock** aesthetic:
 - **Undercut Delta Calculation**: Model pit stop timing windows to compute time gains and finish position probabilities.
 
 ### 🏎️ 5. Circuits & Race Deep-Dive (`/circuits`, `/race-analysis`)
-- **Circuit Directory**: DRS activation zones, track lengths, turn counts, and lap records. Includes correct case-sensitive official F1 CDN track mapping layouts.
+- **Circuit Directory**: Active Aerodynamics activation zones, track lengths, turn counts, and lap records. Includes correct case-sensitive official F1 CDN track mapping layouts.
 - **Stint Strategy Timeline**: Color-coded tire compound timelines detailing stint lengths and pit stop durations.
 
 ---
