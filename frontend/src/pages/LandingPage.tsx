@@ -5,6 +5,8 @@ import { Gauge, Shield, Trophy, ArrowRight, Zap, Flame } from 'lucide-react';
 import { F1API } from '../services/api';
 import { Race } from '../types';
 import { useLoaderStore } from '../store/useLoaderStore';
+import Hyperspeed from '../components/Hyperspeed/Hyperspeed';
+import { hyperspeedPresets } from '../components/Hyperspeed/HyperSpeedPresets';
 
 export const LandingPage: React.FC = () => {
   const [nextRace, setNextRace] = useState<Race | null>(null);
@@ -74,13 +76,18 @@ export const LandingPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen space-y-24 pb-24 overflow-hidden relative">
+    <div className="min-h-screen space-y-24 pb-24 overflow-hidden relative bg-[#070709]">
       {/* Background Motifs */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-[#E10600]/5 rounded-full blur-[160px]" />
-        <div className="absolute top-1/3 left-1/3 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[140px]" />
-        <div className="absolute inset-0 carbon-pattern opacity-30" />
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[#070709]/40 z-10" />
+        <div className="absolute inset-0">
+          <Hyperspeed
+            effectOptions={hyperspeedPresets.two}
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#070709]/70 to-[#070709] z-20" />
       </div>
+
 
       {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center justify-center px-4 z-10">
