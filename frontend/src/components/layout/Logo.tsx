@@ -39,10 +39,10 @@ export const Logo: React.FC<LogoProps> = ({ className = '', iconOnly = false }) 
           {/* Speed pointer */}
           <polygon 
             points="50,50 48,50 49,22 51,22 52,50" 
-            fill="#00F0FF" 
+            fill="#E10600" 
             className="origin-center -rotate-[45deg] group-hover:rotate-[60deg] transition-transform duration-500 ease-out" 
           />
-          <circle cx="50" cy="50" r="4" fill="#00F0FF" />
+          <circle cx="50" cy="50" r="4" fill="#E10600" />
         </svg>
       </div>
 

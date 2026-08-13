@@ -101,7 +101,7 @@ export const LandingPage: React.FC = () => {
             className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-white font-display uppercase"
           >
             GET IN GEAR: <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#E10600] via-[#FF3300] to-[#00F0FF] drop-shadow-[0_0_30px_rgba(225,6,0,0.3)]">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#E10600] via-[#FF7A00] to-[#FFFFFF] drop-shadow-[0_0_30px_rgba(225,6,0,0.3)]">
               FROM POLE TO PIXEL
             </span>
           </motion.h1>
@@ -110,7 +110,7 @@ export const LandingPage: React.FC = () => {
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springReveal, delay: 0.25 }}
-            className="text-lg sm:text-xl font-bold tracking-tight text-cyan-400 uppercase font-mono max-w-3xl mx-auto"
+            className="text-lg sm:text-xl font-bold tracking-tight text-gray-300 uppercase font-mono max-w-3xl mx-auto"
           >
             Live timing. Real telemetry. Every lap, decoded.
           </motion.h2>
