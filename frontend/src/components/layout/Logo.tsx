@@ -47,12 +47,9 @@ export const Logo: React.FC<LogoProps> = ({ className = '', iconOnly = false }) 
       </div>
 
       {!iconOnly && (
-        <div className="flex flex-col">
+        <div className="flex flex-col justify-center">
           <span className="text-xl font-black tracking-wider leading-none text-white font-display">
             CHRONO<span className="text-[#E10600]">GRID</span>
-          </span>
-          <span className="text-[9px] font-mono tracking-widest text-[#00F0FF] uppercase mt-0.5">
-            Telemetry Core
           </span>
         </div>
       )}

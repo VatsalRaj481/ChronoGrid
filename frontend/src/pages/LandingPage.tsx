@@ -92,38 +92,37 @@ export const LandingPage: React.FC = () => {
       {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center justify-center px-4 z-10">
         <div className="max-w-5xl mx-auto text-center space-y-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={springReveal}
-            className="inline-flex items-center gap-2 px-4.5 py-1.5 rounded-full bg-[#E10600]/10 border border-[#E10600]/30 text-[10px] font-mono tracking-widest text-[#E10600]"
-          >
-            <Zap className="w-3.5 h-3.5 fill-[#E10600]" />
-            REAL-TIME F1 TELEMETRY & STRATEGY ENGINE
-          </motion.div>
+
 
           <motion.h1 
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springReveal, delay: 0.15 }}
-            className="text-6xl sm:text-8xl lg:text-9xl font-black tracking-tighter leading-[0.85] text-white font-display uppercase"
+            className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-white font-display uppercase"
           >
-            PRECISION AT <br />
+            GET IN GEAR: <br />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#E10600] via-[#FF3300] to-[#00F0FF] drop-shadow-[0_0_30px_rgba(225,6,0,0.3)]">
-              350 KM/H
+              FROM POLE TO PIXEL
             </span>
           </motion.h1>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...springReveal, delay: 0.25 }}
+            className="text-lg sm:text-xl font-bold tracking-tight text-cyan-400 uppercase font-mono max-w-3xl mx-auto"
+          >
+            Live timing. Real telemetry. Every lap, decoded.
+          </motion.h2>
 
           <motion.p 
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ ...springReveal, delay: 0.3 }}
-            className="max-w-2xl mx-auto text-base text-gray-400 font-normal leading-relaxed tracking-normal"
+            transition={{ ...springReveal, delay: 0.35 }}
+            className="max-w-2xl mx-auto text-sm sm:text-base text-gray-400 font-normal leading-relaxed tracking-normal"
           >
-            Experience Formula 1 telemetry analyzed at millisecond precision. Synchronized speed curves, throttle traces, active aerodynamics deployment, and AI pit strategy modeling.
+            From race winners to wheel-to-wheel battles, every lap is decoded through throttle, braking, tyres, aerodynamics, and driver performance data.
           </motion.p>
-
-          {/* Hero Actions */}
           <motion.div 
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
