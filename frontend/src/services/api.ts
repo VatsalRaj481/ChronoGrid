@@ -9,7 +9,37 @@ const apiClient = axios.create({
   },
 });
 
+// Retry-with-backoff interceptor (3 retries, ~3s delay) for real API calls
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config = error.config;
+    if (!config) return Promise.reject(error);
+
+    const retryCount = (config as any).__retryCount || 0;
+    if (retryCount >= 3) {
+      return Promise.reject(error);
+    }
+
+    (config as any).__retryCount = retryCount + 1;
+    console.warn(`[API] Retrying request (${(config as any).__retryCount}/3) after error in 3s...`, error.message);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    return apiClient(config);
+  }
+);
+
 export const F1API = {
+  pingHealth: (): void => {
+    const healthUrl = API_BASE_URL.endsWith('/') 
+      ? `${API_BASE_URL}health` 
+      : `${API_BASE_URL}/health`;
+    
+    fetch(healthUrl, { method: 'GET' }).catch(() => {
+      // Fire-and-forget: silently ignore errors
+    });
+  },
+
+
   getDrivers: async (): Promise<Driver[]> => {
     try {
       const response = await apiClient.get('/drivers');

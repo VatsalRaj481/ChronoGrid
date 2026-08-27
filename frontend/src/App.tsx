@@ -15,6 +15,7 @@ import { Champions } from './pages/Champions';
 import { PageTransition } from './components/layout/PageTransition';
 import { LoadingScreen } from './components/layout/LoadingScreen';
 import { useLoaderStore } from './store/useLoaderStore';
+import { F1API } from './services/api';
 
 const AnimatedRoutes: React.FC = () => {
   const location = useLocation();
@@ -44,6 +45,10 @@ const AnimatedRoutes: React.FC = () => {
 
 export const App: React.FC = () => {
   const isLoading = useLoaderStore((state) => state.isLoading);
+
+  React.useEffect(() => {
+    F1API.pingHealth();
+  }, []);
 
   return (
     <Router>
