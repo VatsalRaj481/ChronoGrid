@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.routers import drivers, races, telemetry, standings
@@ -9,6 +10,21 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     docs_url=f"{settings.API_V1_STR}/docs"
 )
+
+# Defense-in-depth safeguard against Brotli decompression vulnerabilities (CVE-2026-111497 / Node2Shell)
+# Rejects incoming request bodies with Content-Encoding: br with HTTP 415
+@app.middleware("http")
+async def reject_brotli_request_bodies(request: Request, call_next):
+    content_encoding = request.headers.get("content-encoding", "").lower()
+    if "br" in content_encoding:
+        return JSONResponse(
+            status_code=415,
+            content={
+                "error": "Unsupported Media Type",
+                "message": "Brotli request decompression (Content-Encoding: br) is rejected as defense-in-depth (CVE-2026-111497 safeguard)."
+            }
+        )
+    return await call_next(request)
 
 # Enable CORS for frontend integration
 app.add_middleware(
@@ -38,4 +54,3 @@ async def root():
 @app.get(f"{settings.API_V1_STR}/health")
 async def health_check():
     return {"status": "healthy"}
-

@@ -72,7 +72,7 @@ ChronoGrid is built around a bespoke **Dark Motorsport Paddock** aesthetic:
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js** (v18+ recommended)
+- **Node.js** (v22.11.0+ LTS recommended, or v24.x - required to mitigate CVE-2026-111497 / Node2Shell)
 - **Python** (v3.12+ recommended)
 
 ---
